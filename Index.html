@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Football Scores</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background: #222;
+      color: white;
+      padding: 15px;
+      font-size: 1.4em;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #333;
+      flex-wrap: wrap;
+    }
+    nav button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: #444;
+      color: white;
+      cursor: pointer;
+    }
+    nav button.active {
+      background: #007bff;
+    }
+    section {
+      margin: 15px auto;
+      width: 95%;
+      max-width: 800px;
+      text-align: left;
+    }
+    h2 {
+      background: #007bff;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 1.2em;
+    }
+    .match-box {
+      background: white;
+      margin: 10px auto;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .time {
+      font-size: 0.9em;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <header>⚽ Live Football Scores</header>
+  
+  <nav>
+    <button onclick="loadLeague(39, this)">Premier League</button>
+    <button onclick="loadLeague(140, this)">La Liga</button>
+    <button onclick="loadLeague(135, this)">Serie A</button>
+    <button onclick="loadLeague(78, this)">Bundesliga</button>
+    <button onclick="loadLeague(61, this)">Ligue 1</button>
+  </nav>
+
+  <section>
+    <h2>Live Matches</h2>
+    <div id="live-matches"></div>
+  </section>
+
+  <section>
+    <h2>Upcoming Fixtures</h2>
+    <div id="upcoming-matches"></div>
+  </section>
+
+  <script>
+    const API_KEY = "YOUR_API_KEY"; // Replace with your API key
+
+    async function loadLeague(leagueId, btn) {
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // Get live matches
+      const liveUrl = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=2024`;
+      const options = {
+        method: "GET",
+        headers: {
+          "x-rapidapi-key": API_KEY,
+          "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+        }
+      };
+
+      const liveRes = await fetch(liveUrl, options);
+      const liveData = await liveRes.json();
+      const liveDiv = document.getElementById("live-matches");
+      liveDiv.innerHTML = "";
+
+      if (liveData.response.length === 0) {
+        liveDiv.innerHTML = "<p>No live matches right now.</p>";
+      } else {
+        liveData.response.forEach(m => {
+          const box = document.createElement("div");
+          box.className = "match-box";
+          box.innerHTML = `
+            <h3>${m.teams.home.name} vs ${m.teams.away.name}</h3>
+            <p>Score: ${m.goals.home} - ${m.goals.away}</p>
+            <p class="time">⏱ ${m.fixture.status.elapsed}'</p>
+          `;
+          liveDiv.appendChild(box);
+        });
+      }
+
+      // Get next upcoming matches
+      const upcomingUrl = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=2024&next=5`;
+      const upcomingRes = await fetch(upcomingUrl, options);
+      const upcomingData = await upcomingRes.json();
+      const upcomingDiv = document.getElementById("upcoming-matches");
+      upcomingDiv.innerHTML = "";
+
+      if (upcomingData.response.length === 0) {
+        upcomingDiv.innerHTML = "<p>No upcoming matches found.</p>";
+      } else {
+        upcomingData.response.forEach(m => {
+          const date = new Date(m.fixture.date);
+          const box = document.createElement("div");
+          box.className = "match-box";
+          box.innerHTML = `
+            <h3>${m.teams.home.name} vs ${m.teams.away.name}</h3>
+            <p class="time">📅 ${date.toDateString()} | ⏰ ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+          `;
+          upcomingDiv.appendChild(box);
+        });
+      }
+    }
+
+    // Auto-refresh live matches every 30 sec
+    setInterval(() => {
+      const activeBtn = document.querySelector("nav button.active");
+      if (activeBtn) activeBtn.click();
+    }, 30000);
+  </script>
+</body>
+</html>
