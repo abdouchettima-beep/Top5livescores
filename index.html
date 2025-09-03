@@ -3,150 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Football Scores</title>
+  <title>Live Scores</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      background: #f8f9fa;
       margin: 0;
-      padding: 0;
+      padding: 20px;
+    }
+    h1 {
       text-align: center;
+      color: #222;
     }
-    header {
-      background: #222;
-      color: white;
-      padding: 15px;
-      font-size: 1.4em;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      background: #333;
-      flex-wrap: wrap;
-    }
-    nav button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: #444;
-      color: white;
-      cursor: pointer;
-    }
-    nav button.active {
-      background: #007bff;
-    }
-    section {
-      margin: 15px auto;
-      width: 95%;
-      max-width: 800px;
-      text-align: left;
-    }
-    h2 {
-      background: #007bff;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 1.2em;
-    }
-    .match-box {
+    .match {
       background: white;
-      margin: 10px auto;
       padding: 15px;
+      margin: 10px auto;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 500px;
     }
-    .time {
-      font-size: 0.9em;
-      color: gray;
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .status {
+      text-align: center;
+      color: #555;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
-  <header>⚽ Live Football Scores</header>
-  
-  <nav>
-    <button onclick="loadLeague(39, this)">Premier League</button>
-    <button onclick="loadLeague(140, this)">La Liga</button>
-    <button onclick="loadLeague(135, this)">Serie A</button>
-    <button onclick="loadLeague(78, this)">Bundesliga</button>
-    <button onclick="loadLeague(61, this)">Ligue 1</button>
-  </nav>
-
-  <section>
-    <h2>Live Matches</h2>
-    <div id="live-matches"></div>
-  </section>
-
-  <section>
-    <h2>Upcoming Fixtures</h2>
-    <div id="upcoming-matches"></div>
-  </section>
+  <h1>⚽ Live & Upcoming Matches</h1>
+  <div id="matches">Loading...</div>
 
   <script>
-    const API_KEY ="bcb3327d3417bafd64a44c4e92b40151"; // Replace with your API key
+    async function loadMatches() {
+      const container = document.getElementById("matches");
+      try {
+        // 1. Try fetching live matches
+        const res = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+          method: "GET",
+          headers: {
+            "x-apisports-key": "bcb3327d3417bafd64a44c4e92b40151"
+          }
+        });
+        const data = await res.json();
 
-    async function loadLeague(leagueId, btn) {
-      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+        container.innerHTML = "";
 
-      // Get live matches
-      const liveUrl = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=2024`;
-      const options = {
-        method: "GET",
-        headers: {
-          "x-rapidapi-key": API_KEY,
-          "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+        if (data.response.length > 0) {
+          // Show live matches
+          data.response.forEach(match => {
+            const div = document.createElement("div");
+            div.className = "match";
+            div.innerHTML = `
+              <div class="teams">
+                <span>${match.teams.home.name} (${match.goals.home ?? 0})</span>
+                <span>${match.teams.away.name} (${match.goals.away ?? 0})</span>
+              </div>
+              <div class="status">Status: ${match.fixture.status.long}</div>
+            `;
+            container.appendChild(div);
+          });
+        } else {
+          // 2. If no live matches, fetch today's fixtures
+          const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+          const res2 = await fetch(`https://v3.football.api-sports.io/fixtures?date=${today}`, {
+            method: "GET",
+            headers: {
+              "x-apisports-key": "YOUR_API_KEY_HERE"
+            }
+          });
+          const upcoming = await res2.json();
+
+          if (upcoming.response.length === 0) {
+            container.innerHTML = "<p>No matches scheduled today.</p>";
+            return;
+          }
+
+          container.innerHTML = "<h2>Today's Matches</h2>";
+          upcoming.response.forEach(match => {
+            const div = document.createElement("div");
+            div.className = "match";
+            const kickoff = new Date(match.fixture.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            div.innerHTML = `
+              <div class="teams">
+                <span>${match.teams.home.name}</span>
+                <span>${match.teams.away.name}</span>
+              </div>
+              <div class="status">Kickoff: ${kickoff}</div>
+            `;
+            container.appendChild(div);
+          });
         }
-      };
-
-      const liveRes = await fetch(liveUrl, options);
-      const liveData = await liveRes.json();
-      const liveDiv = document.getElementById("live-matches");
-      liveDiv.innerHTML = "";
-
-      if (liveData.response.length === 0) {
-        liveDiv.innerHTML = "<p>No live matches right now.</p>";
-      } else {
-        liveData.response.forEach(m => {
-          const box = document.createElement("div");
-          box.className = "match-box";
-          box.innerHTML = `
-            <h3>${m.teams.home.name} vs ${m.teams.away.name}</h3>
-            <p>Score: ${m.goals.home} - ${m.goals.away}</p>
-            <p class="time">⏱ ${m.fixture.status.elapsed}'</p>
-          `;
-          liveDiv.appendChild(box);
-        });
-      }
-
-      // Get next upcoming matches
-      const upcomingUrl = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=2024&next=5`;
-      const upcomingRes = await fetch(upcomingUrl, options);
-      const upcomingData = await upcomingRes.json();
-      const upcomingDiv = document.getElementById("upcoming-matches");
-      upcomingDiv.innerHTML = "";
-
-      if (upcomingData.response.length === 0) {
-        upcomingDiv.innerHTML = "<p>No upcoming matches found.</p>";
-      } else {
-        upcomingData.response.forEach(m => {
-          const date = new Date(m.fixture.date);
-          const box = document.createElement("div");
-          box.className = "match-box";
-          box.innerHTML = `
-            <h3>${m.teams.home.name} vs ${m.teams.away.name}</h3>
-            <p class="time">📅 ${date.toDateString()} | ⏰ ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-          `;
-          upcomingDiv.appendChild(box);
-        });
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = "<p>Failed to load matches.</p>";
       }
     }
 
-    // Auto-refresh live matches every 30 sec
-    setInterval(() => {
-      const activeBtn = document.querySelector("nav button.active");
-      if (activeBtn) activeBtn.click();
-    }, 30000);
+    loadMatches();
   </script>
 </body>
 </html>
