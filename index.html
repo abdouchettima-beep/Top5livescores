@@ -21,6 +21,7 @@
   .status { font-size:0.9em; color:white; padding:2px 6px; border-radius:4px; margin-top:4px; font-weight:bold; }
   .placeholder { color:gray; font-style:italic; margin:10px 0; }
   #admob-banner { margin:20px auto; width:90%; max-width:500px; background:#ddd; height:60px; display:flex; align-items:center; justify-content:center; border-radius:10px; }
+  #home-section { margin:10px; }
 </style>
 </head>
 <body>
@@ -33,7 +34,7 @@
 </div>
 
 <nav>
-  <button onclick="showHome(this)"><img class="league-logo" src="https://img.icons8.com/ios-filled/50/ffffff/home.png"/> Home</button>
+  <button onclick="showHome(this)">🏠 Home</button>
   <button onclick="loadLeague(39, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png"> Premier League</button>
   <button onclick="loadLeague(140, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png"> La Liga</button>
   <button onclick="loadLeague(135, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/135.png"> Serie A</button>
@@ -43,27 +44,19 @@
 
 <!-- Home Section -->
 <div id="home-section">
-  <h2>🏠 Welcome to Live Football Scores</h2>
-  <p>Select a league above to view live and upcoming matches.</p>
-  <p>Stay updated with real-time football scores and fixtures!</p>
+  <!-- Welcome card removed -->
 </div>
 
-<!-- League Sections -->
-<div id="league-sections" style="display:none;">
-  <div id="live-matches"></div>
-  <div id="upcoming-matches"></div>
-</div>
+<!-- Match Sections -->
+<div id="live-matches"></div>
+<div id="upcoming-matches"></div>
 
 <script>
 const API_KEY = "bcb3327d3417bafd64a44c4e92b40151";
 
 // League colors
 const leagueColors = {
-  39: '#1E90FF',   // Premier League
-  140: '#FF0000',  // La Liga
-  135: '#008000',  // Serie A
-  78: '#FF8C00',   // Bundesliga
-  61: '#800080'    // Ligue 1
+  39: '#1E90FF', 140: '#FF0000', 135: '#008000', 78: '#FF8C00', 61: '#800080'
 };
 
 // Match status colors
@@ -81,24 +74,25 @@ function getStatusBadge(status) {
   return `<div class="status" style="background:${color}">${text}</div>`;
 }
 
+// Show Home Section
 function showHome(btn) {
   document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
+  document.getElementById("live-matches").innerHTML = "";
+  document.getElementById("upcoming-matches").innerHTML = "";
   document.getElementById("home-section").style.display = "block";
-  document.getElementById("league-sections").style.display = "none";
 }
 
+// Load League
 async function loadLeague(leagueId, btn) {
   document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-
   document.getElementById("home-section").style.display = "none";
-  document.getElementById("league-sections").style.display = "block";
-
   await loadLiveMatches(leagueId);
   await loadUpcomingMatches(leagueId);
 }
 
+// Load Live Matches
 async function loadLiveMatches(leagueId) {
   const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=2024`;
   const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
@@ -134,6 +128,7 @@ async function loadLiveMatches(leagueId) {
   }
 }
 
+// Load Upcoming Matches
 async function loadUpcomingMatches(leagueId) {
   const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=2024&next=10`;
   const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
@@ -169,13 +164,14 @@ async function loadUpcomingMatches(leagueId) {
   }
 }
 
-// Auto-refresh every 30s if on a league
+// Auto-refresh every 30s
 setInterval(() => {
   const activeBtn = document.querySelector("nav button.active");
-  if (activeBtn && activeBtn.textContent !== " Home") {
-    activeBtn.click();
-  }
+  if (activeBtn && activeBtn.textContent !== "🏠 Home") activeBtn.click();
 }, 30000);
+
+// Load Home by default
+window.onload = () => showHome(document.querySelector("nav button"));
 </script>
 
 </body>
