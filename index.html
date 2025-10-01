@@ -11,6 +11,9 @@
   nav button { flex:1 1 120px; margin:2px; padding:12px; border:none; background:#444; color:white; cursor:pointer; transition:0.3s; border-radius:6px; display:flex; align-items:center; justify-content:center; gap:5px; }
   nav button:hover { background:#555; }
   nav button.active { background:#007bff; }
+  .toggle-bar { margin:10px 0; }
+  .toggle-bar button { margin:0 5px; padding:8px 14px; border:none; border-radius:6px; background:#444; color:white; cursor:pointer; }
+  .toggle-bar button.active { background:#28a745; }
   .league-logo { width:20px; height:20px; object-fit:contain; }
   .section-title { margin:20px 0 10px; font-size:1.3em; font-weight:bold; color:#333; }
   .match-box { background:white; margin:10px auto; padding:15px; width:90%; max-width:500px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.15); text-align:center; display:flex; flex-direction:column; align-items:center; }
@@ -20,12 +23,19 @@
   .time { font-size:0.9em; color:white; padding:2px 5px; border-radius:4px; }
   .status { font-size:0.9em; color:white; padding:2px 6px; border-radius:4px; margin-top:4px; font-weight:bold; }
   .placeholder { color:gray; font-style:italic; margin:10px 0; }
+  #admob-banner { margin:20px auto; width:90%; max-width:500px; background:#ddd; height:60px; display:flex; align-items:center; justify-content:center; border-radius:10px; }
 </style>
 </head>
 <body>
 
 <header>⚽ Live Football Scores</header>
 
+<!-- AdMob Banner Placeholder -->
+<div id="admob-banner">
+  <p>AdMob Banner (replace with real ad in app)</p>
+</div>
+
+<!-- League Buttons -->
 <nav>
   <button onclick="loadLeague(39, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png"> Premier League</button>
   <button onclick="loadLeague(140, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png"> La Liga</button>
@@ -34,35 +44,36 @@
   <button onclick="loadLeague(61, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/61.png"> Ligue 1</button>
 </nav>
 
+<!-- Toggle Buttons -->
+<div class="toggle-bar">
+  <button id="liveBtn" class="active" onclick="showSection('live')">Live Matches</button>
+  <button id="upcomingBtn" onclick="showSection('upcoming')">Upcoming Matches</button>
+</div>
+
 <div id="live-matches"></div>
-<div id="upcoming-matches"></div>
+<div id="upcoming-matches" style="display:none;"></div>
 
 <script>
 const API_KEY = "bcb3327d3417bafd64a44c4e92b40151";
 
+// Detect current season automatically
+const today = new Date();
+let currentSeason = today.getMonth() >= 7 ? today.getFullYear() : today.getFullYear() - 1;
+
 // League colors
 const leagueColors = {
-  39: '#1E90FF',   // Premier League - Blue
-  140: '#FF0000',  // La Liga - Red
-  135: '#008000',  // Serie A - Green
-  78: '#FF8C00',   // Bundesliga - Orange
-  61: '#800080'    // Ligue 1 - Purple
+  39: '#1E90FF',
+  140: '#FF0000',
+  135: '#008000',
+  78: '#FF8C00',
+  61: '#800080'
 };
 
 // Match status colors
 const statusColors = {
-  "NS": "#6c757d",
-  "1H": "#28a745",
-  "2H": "#28a745",
-  "HT": "#ffc107",
-  "FT": "#dc3545",
-  "PST": "#6c757d",
-  "CANC": "#6c757d",
-  "ABD": "#6c757d",
-  "LIVE": "#28a745"
+  "NS": "#6c757d", "1H": "#28a745", "2H": "#28a745", "HT": "#ffc107",
+  "FT": "#dc3545", "PST": "#6c757d", "CANC": "#6c757d", "ABD": "#6c757d", "LIVE": "#28a745"
 };
-
-let currentLeague = 39;
 
 function getStatusBadge(status) {
   const color = statusColors[status] || "#6c757d";
@@ -74,7 +85,6 @@ function getStatusBadge(status) {
 }
 
 async function loadLeague(leagueId, btn) {
-  currentLeague = leagueId;
   document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   await loadLiveMatches(leagueId);
@@ -82,7 +92,7 @@ async function loadLeague(leagueId, btn) {
 }
 
 async function loadLiveMatches(leagueId) {
-  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=2024`;
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
   const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
   const liveDiv = document.getElementById("live-matches");
   liveDiv.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
@@ -104,7 +114,7 @@ async function loadLiveMatches(leagueId) {
             <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
           </div>
           <div class="score" style="background:${color}">${m.goals.home} - ${m.goals.away}</div>
-          <div class="time" style="background:${color}">⏱ ${m.fixture.status.elapsed}'</div>
+          <div class="time" style="background:${color}">⏱ ${m.fixture.status.elapsed || 0}'</div>
           ${getStatusBadge(status)}
         `;
         liveDiv.appendChild(box);
@@ -116,9 +126,8 @@ async function loadLiveMatches(leagueId) {
   }
 }
 
-// Now load multiple upcoming matches
 async function loadUpcomingMatches(leagueId) {
-  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=2024&next=5`;
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10`;
   const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
   const upDiv = document.getElementById("upcoming-matches");
   upDiv.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
@@ -130,11 +139,11 @@ async function loadUpcomingMatches(leagueId) {
       upDiv.innerHTML += `<p class="placeholder">No upcoming matches found.</p>`;
     } else {
       data.response.forEach(m => {
+        const date = new Date(m.fixture.date);
         const box = document.createElement("div");
         box.className = "match-box";
         const color = leagueColors[leagueId] || '#007bff';
         const status = m.fixture.status.short;
-        const date = new Date(m.fixture.date);
         box.innerHTML = `
           <div class="teams">
             <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
@@ -152,7 +161,25 @@ async function loadUpcomingMatches(leagueId) {
   }
 }
 
-// Auto-refresh every 30 seconds
+// Toggle display
+function showSection(type) {
+  const live = document.getElementById("live-matches");
+  const upcoming = document.getElementById("upcoming-matches");
+  document.getElementById("liveBtn").classList.remove("active");
+  document.getElementById("upcomingBtn").classList.remove("active");
+
+  if (type === "live") {
+    live.style.display = "block";
+    upcoming.style.display = "none";
+    document.getElementById("liveBtn").classList.add("active");
+  } else {
+    live.style.display = "none";
+    upcoming.style.display = "block";
+    document.getElementById("upcomingBtn").classList.add("active");
+  }
+}
+
+// Auto-refresh every 30s (only refreshes active section)
 setInterval(() => {
   const activeBtn = document.querySelector("nav button.active");
   if (activeBtn) activeBtn.click();
