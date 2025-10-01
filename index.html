@@ -1,94 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Football Scores</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
-    h1 { text-align: center; }
-    .match {
-      background: #fff;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .league {
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      margin-bottom: 10px;
-      color: #444;
-    }
-    .league img { width: 20px; height: 20px; margin-right: 6px; }
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      font-size: 16px;
-    }
-    .teams img {
-      width: 30px;
-      height: 30px;
-    }
-    .score {
-      text-align: center;
-      font-size: 22px;
-      color: green;
-      margin: 10px 0;
-    }
-    .status { text-align: center; font-size: 14px; color: #555; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Football Scores</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f8f9fa; margin:0; text-align:center; }
+  header { background:#222; color:white; padding:15px; font-size:1.5em; font-weight:bold; }
+  nav { display:flex; justify-content:center; flex-wrap: wrap; margin:10px 0; }
+  nav button { flex:1 1 120px; margin:2px; padding:12px; border:none; background:#444; color:white; cursor:pointer; transition:0.3s; border-radius:6px; display:flex; align-items:center; justify-content:center; gap:5px; }
+  nav button:hover { background:#555; }
+  nav button.active { background:#007bff; }
+  .league-logo { width:20px; height:20px; object-fit:contain; }
+  .section-title { margin:20px 0 10px; font-size:1.3em; font-weight:bold; color:#333; }
+  .match-box { background:white; margin:10px auto; padding:15px; width:90%; max-width:500px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.15); text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .teams { font-size:1.1em; font-weight:bold; margin-bottom:5px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap: wrap; }
+  .team-logo { width:30px; height:30px; object-fit:contain; }
+  .score { font-size:1.2em; margin:5px 0; color:white; padding:3px 6px; border-radius:5px; }
+  .time { font-size:0.9em; color:white; padding:2px 5px; border-radius:4px; }
+  .status { font-size:0.9em; color:white; padding:2px 6px; border-radius:4px; margin-top:4px; font-weight:bold; }
+  .placeholder { color:gray; font-style:italic; margin:10px 0; }
+</style>
 </head>
 <body>
-  <h1>Live Football Scores</h1>
-  <div id="matches"></div>
 
-  <script>
-    const apiKey = "YOUR_API_KEY"; // c433952791f83b64dd1550aba4ad9260
-    const url = "https://v3.football.api-sports.io/fixtures?live=all";
+<header>⚽ Live Football Scores</header>
 
-    async function loadLiveMatches() {
-      try {
-        const response = await fetch(url, {
-          method: "GET",
-          headers: { "x-apisports-key": apiKey }
-        });
-        const data = await response.json();
+<nav>
+  <button onclick="loadLeague(39, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png"> Premier League</button>
+  <button onclick="loadLeague(140, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png"> La Liga</button>
+  <button onclick="loadLeague(135, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/135.png"> Serie A</button>
+  <button onclick="loadLeague(78, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/78.png"> Bundesliga</button>
+  <button onclick="loadLeague(61, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/61.png"> Ligue 1</button>
+</nav>
 
-        const container = document.getElementById("matches");
-        container.innerHTML = "";
+<div id="live-matches"></div>
+<div id="upcoming-matches"></div>
 
-        if (data.response.length === 0) {
-          container.innerHTML = "<p>No live matches right now.</p>";
-          return;
-        }
+<script>
+const API_KEY = "bcb3327d3417bafd64a44c4e92b40151";
 
-        data.response.forEach(match => {
-          const div = document.createElement("div");
-          div.className = "match";
-          div.innerHTML = `
-            <div class="league">
-              <img src="${match.league.logo}" alt="league logo"> ${match.league.name}
-            </div>
-            <div class="teams">
-              <span><img src="${match.teams.home.logo}" alt="home"> ${match.teams.home.name}</span>
-              <span><img src="${match.teams.away.logo}" alt="away"> ${match.teams.away.name}</span>
-            </div>
-            <div class="score">${match.goals.home} - ${match.goals.away}</div>
-            <div class="status">Status: ${match.fixture.status.long}</div>
-          `;
-          container.appendChild(div);
-        });
-      } catch (error) {
-        console.error(error);
-      }
+// League colors
+const leagueColors = {
+  39: '#1E90FF',   // Premier League - Blue
+  140: '#FF0000',  // La Liga - Red
+  135: '#008000',  // Serie A - Green
+  78: '#FF8C00',   // Bundesliga - Orange
+  61: '#800080'    // Ligue 1 - Purple
+};
+
+// Match status colors
+const statusColors = {
+  "NS": "#6c757d",
+  "1H": "#28a745",
+  "2H": "#28a745",
+  "HT": "#ffc107",
+  "FT": "#dc3545",
+  "PST": "#6c757d",
+  "CANC": "#6c757d",
+  "ABD": "#6c757d",
+  "LIVE": "#28a745"
+};
+
+let currentLeague = 39;
+
+function getStatusBadge(status) {
+  const color = statusColors[status] || "#6c757d";
+  const text = {
+    "NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time",
+    "FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned","LIVE":"Live"
+  }[status] || status;
+  return `<div class="status" style="background:${color}">${text}</div>`;
+}
+
+async function loadLeague(leagueId, btn) {
+  currentLeague = leagueId;
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  await loadLiveMatches(leagueId);
+  await loadUpcomingMatches(leagueId);
+}
+
+async function loadLiveMatches(leagueId) {
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=2024`;
+  const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
+  const liveDiv = document.getElementById("live-matches");
+  liveDiv.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
+
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    if (!data.response || data.response.length === 0) {
+      liveDiv.innerHTML += `<p class="placeholder">No live matches right now.</p>`;
+    } else {
+      data.response.forEach(m => {
+        const box = document.createElement("div");
+        box.className = "match-box";
+        const color = leagueColors[leagueId] || '#007bff';
+        const status = m.fixture.status.short === "LIVE" ? "LIVE" : m.fixture.status.short;
+        box.innerHTML = `
+          <div class="teams">
+            <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
+            <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
+          </div>
+          <div class="score" style="background:${color}">${m.goals.home} - ${m.goals.away}</div>
+          <div class="time" style="background:${color}">⏱ ${m.fixture.status.elapsed}'</div>
+          ${getStatusBadge(status)}
+        `;
+        liveDiv.appendChild(box);
+      });
     }
+  } catch(err) {
+    liveDiv.innerHTML += `<p class="placeholder">Error loading live matches.</p>`;
+    console.error(err);
+  }
+}
 
-    loadLiveMatches();
-    setInterval(loadLiveMatches, 60000); // refresh every 60s
-  </script>
+// Now load multiple upcoming matches
+async function loadUpcomingMatches(leagueId) {
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=2024&next=5`;
+  const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
+  const upDiv = document.getElementById("upcoming-matches");
+  upDiv.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
+
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    if (!data.response || data.response.length === 0) {
+      upDiv.innerHTML += `<p class="placeholder">No upcoming matches found.</p>`;
+    } else {
+      data.response.forEach(m => {
+        const box = document.createElement("div");
+        box.className = "match-box";
+        const color = leagueColors[leagueId] || '#007bff';
+        const status = m.fixture.status.short;
+        const date = new Date(m.fixture.date);
+        box.innerHTML = `
+          <div class="teams">
+            <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
+            <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
+          </div>
+          <div class="time" style="background:${color}; padding:2px 5px; border-radius:4px;">Kick-off: ${date.toLocaleString()}</div>
+          ${getStatusBadge(status)}
+        `;
+        upDiv.appendChild(box);
+      });
+    }
+  } catch(err) {
+    upDiv.innerHTML += `<p class="placeholder">Error loading upcoming matches.</p>`;
+    console.error(err);
+  }
+}
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+  const activeBtn = document.querySelector("nav button.active");
+  if (activeBtn) activeBtn.click();
+}, 30000);
+</script>
+
 </body>
 </html>
