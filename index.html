@@ -105,6 +105,11 @@
 
   .placeholder { color:#888; font-style:italic; margin:14px 0; font-size:1em; text-align:center; }
 
+  /* Loading and Error States */
+  .loading { color: #1e90ff; text-align: center; margin: 20px 0; }
+  .error { color: #ff4444; text-align: center; margin: 20px 0; padding: 10px; background: #2a1a1a; border-radius: 8px; }
+  .debug-info { font-size: 0.8em; color: #888; margin-top: 10px; }
+
   /* Responsive */
   @media(max-width:480px){
     nav button { flex:1 1 100px; padding:10px 6px; font-size:0.9em; }
@@ -132,100 +137,253 @@
   <button id="upcomingBtn" onclick="showSection('upcoming')">Upcoming Matches</button>
 </div>
 
+<div id="status-message"></div>
 <div id="live-matches"></div>
 <div id="upcoming-matches" style="display:none;"></div>
 
 <script>
-const bcb3327d3417bafd64a44c4e92b40151";
-const today=new Date();
-let currentSeason=today.getMonth()>=7?today.getFullYear():today.getFullYear()-1;
-const leagueColors={39:'#1E90FF',140:'#FF0000',135:'#00C851',78:'#FF8800',61:'#800080'};
-const statusColors={"NS":"#6c757d","1H":"#28a745","2H":"#28a745","HT":"#ffc107","FT":"#dc3545","PST":"#6c757d","CANC":"#6c757d","ABD":"#6c757d","LIVE":"#28a745"};
+// Replace this with your actual API key
+const API_KEY = "YOUR_ACTUAL_API_KEY_HERE"; // IMPORTANT: Replace this!
+const today = new Date();
+let currentSeason = today.getMonth() >= 7 ? today.getFullYear() : today.getFullYear() - 1;
+const leagueColors = {39:'#1E90FF',140:'#FF0000',135:'#00C851',78:'#FF8800',61:'#800080'};
+const statusColors = {"NS":"#6c757d","1H":"#28a745","2H":"#28a745","HT":"#ffc107","FT":"#dc3545","PST":"#6c757d","CANC":"#6c757d","ABD":"#6c757d","LIVE":"#28a745"};
+
+// Debug function to show status messages
+function showStatus(message, type = 'info') {
+  const statusDiv = document.getElementById('status-message');
+  statusDiv.innerHTML = `<div class="${type === 'error' ? 'error' : 'loading'}">${message}</div>`;
+  if (type !== 'error') {
+    setTimeout(() => statusDiv.innerHTML = '', 3000);
+  }
+}
 
 function getStatusBadge(status){
-  const color=statusColors[status]||"#6c757d";
-  const text={"NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time","FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned","LIVE":"Live"}[status]||status;
+  const color = statusColors[status] || "#6c757d";
+  const text = {"NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time","FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned","LIVE":"Live"}[status] || status;
   return `<div class="status" style="background:${color}">${text}</div>`;
 }
 
-let currentLeagueId=39;
+let currentLeagueId = 39;
 
-async function loadLeague(leagueId,btn){
-  currentLeagueId=leagueId;
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+async function loadLeague(leagueId, btn){
+  currentLeagueId = leagueId;
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  if(document.getElementById("live-matches").style.display==="block") await loadLiveMatches(leagueId);
-  else await loadUpcomingMatches(leagueId);
+  
+  if(document.getElementById("live-matches").style.display === "block") {
+    await loadLiveMatches(leagueId);
+  } else {
+    await loadUpcomingMatches(leagueId);
+  }
+}
+
+async function fetchWithRetry(url, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`Attempt ${i + 1} to fetch:`, url);
+      const response = await fetch(url, options);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('API Response received:', data);
+      return data;
+      
+    } catch (error) {
+      console.error(`Attempt ${i + 1} failed:`, error);
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
 }
 
 async function loadLiveMatches(leagueId){
-  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
-  const options={method:"GET",headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
-  const liveDiv=document.getElementById("live-matches");
-  liveDiv.innerHTML=`<div class="section-title">🔴 Live Matches</div>`;
-  try{
-    const res=await fetch(url,options);
-    const data=await res.json();
-    if(!data.response||data.response.length===0){ liveDiv.innerHTML+=`<p class="placeholder">No live matches right now.</p>`; return; }
-    data.response.forEach(m=>{
-      const box=document.createElement("div"); box.className="match-box";
-      const color=leagueColors[leagueId]||'#1e90ff';
-      const status=m.fixture.status.short==="LIVE"?"LIVE":m.fixture.status.short;
-      box.innerHTML=`
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
+  const options = {
+    method: "GET",
+    headers: {
+      "x-rapidapi-key": API_KEY,
+      "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+    }
+  };
+  
+  const liveDiv = document.getElementById("live-matches");
+  showStatus('Loading live matches...', 'loading');
+  liveDiv.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
+  
+  try {
+    // Check if API key is still placeholder
+    if (API_KEY.includes("YOUR_ACTUAL_API_KEY")) {
+      throw new Error("Please replace the API_KEY placeholder with your actual API key");
+    }
+    
+    const data = await fetchWithRetry(url, options);
+    
+    if (!data.response) {
+      throw new Error("Invalid API response structure");
+    }
+    
+    if (data.response.length === 0) {
+      liveDiv.innerHTML += `<p class="placeholder">No live matches right now. Check back later!</p>`;
+      showStatus('No live matches found', 'info');
+      return;
+    }
+    
+    data.response.forEach(match => {
+      const box = document.createElement("div");
+      box.className = "match-box";
+      const color = leagueColors[leagueId] || '#1e90ff';
+      const status = match.fixture.status.short === "LIVE" ? "LIVE" : match.fixture.status.short;
+      
+      box.innerHTML = `
         <div class="teams">
-          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
-          <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
+          <img class="team-logo" src="${match.teams.home.logo}" alt="${match.teams.home.name}" onerror="this.src='https://via.placeholder.com/36?text=HOME'"/>
+          ${match.teams.home.name} vs 
+          <img class="team-logo" src="${match.teams.away.logo}" alt="${match.teams.away.name}" onerror="this.src='https://via.placeholder.com/36?text=AWAY'"/>
+          ${match.teams.away.name}
         </div>
-        <div class="score" style="background:${color}">${m.goals.home} - ${m.goals.away}</div>
-        <div class="time" style="background:${color}">⏱ ${m.fixture.status.elapsed||0}'</div>
+        <div class="score" style="background:${color}">${match.goals.home ?? 0} - ${match.goals.away ?? 0}</div>
+        <div class="time" style="background:${color}">⏱ ${match.fixture.status.elapsed || 0}'</div>
         ${getStatusBadge(status)}
+        <div class="debug-info">Match ID: ${match.fixture.id}</div>
       `;
       liveDiv.appendChild(box);
     });
-  }catch(err){ liveDiv.innerHTML+=`<p class="placeholder">Error loading live matches.</p>`; console.error(err); }
+    
+    showStatus(`Loaded ${data.response.length} live match(es)`, 'info');
+    
+  } catch (err) {
+    console.error('Error loading live matches:', err);
+    let errorMessage = `Error loading live matches: ${err.message}`;
+    
+    if (err.message.includes('Failed to fetch')) {
+      errorMessage += '<br>This might be a CORS issue. Check browser console for details.';
+    } else if (err.message.includes('quota')) {
+      errorMessage += '<br>API quota might be exceeded. Try again later.';
+    }
+    
+    liveDiv.innerHTML += `
+      <div class="error">
+        ${errorMessage}
+        <div class="debug-info">URL: ${url}</div>
+      </div>
+    `;
+    showStatus('Failed to load live matches', 'error');
+  }
 }
 
 async function loadUpcomingMatches(leagueId){
-  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10&timezone=UTC`;
-  const options={method:"GET",headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
-  const upDiv=document.getElementById("upcoming-matches");
-  upDiv.innerHTML=`<div class="section-title">📅 Upcoming Matches</div>`;
-  try{
-    const res=await fetch(url,options);
-    const data=await res.json();
-    if(!data.response||data.response.length===0){ upDiv.innerHTML+=`<p class="placeholder">No upcoming matches found.</p>`; return; }
-    data.response.forEach(m=>{
-      const date=new Date(m.fixture.date);
-      const box=document.createElement("div"); box.className="match-box";
-      const color=leagueColors[leagueId]||'#1e90ff';
-      box.innerHTML=`
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10&timezone=UTC`;
+  const options = {
+    method: "GET",
+    headers: {
+      "x-rapidapi-key": API_KEY,
+      "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+    }
+  };
+  
+  const upDiv = document.getElementById("upcoming-matches");
+  showStatus('Loading upcoming matches...', 'loading');
+  upDiv.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
+  
+  try {
+    // Check if API key is still placeholder
+    if bcb3327d3417bafd64a44c4e92b40151 {
+      throw new Error("Please replace the API_KEY placeholder with your actual API key");
+    }
+    
+    const data = await fetchWithRetry(url, options);
+    
+    if (!data.response) {
+      throw new Error("Invalid API response structure");
+    }
+    
+    if (data.response.length === 0) {
+      upDiv.innerHTML += `<p class="placeholder">No upcoming matches found for this league.</p>`;
+      showStatus('No upcoming matches found', 'info');
+      return;
+    }
+    
+    data.response.forEach(match => {
+      const date = new Date(match.fixture.date);
+      const box = document.createElement("div");
+      box.className = "match-box";
+      const color = leagueColors[leagueId] || '#1e90ff';
+      
+      box.innerHTML = `
         <div class="teams">
-          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
-          <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
+          <img class="team-logo" src="${match.teams.home.logo}" alt="${match.teams.home.name}" onerror="this.src='https://via.placeholder.com/36?text=HOME'"/>
+          ${match.teams.home.name} vs 
+          <img class="team-logo" src="${match.teams.away.logo}" alt="${match.teams.away.name}" onerror="this.src='https://via.placeholder.com/36?text=AWAY'"/>
+          ${match.teams.away.name}
         </div>
-        <div class="time" style="background:${color}; padding:4px 8px; border-radius:6px;">Kick-off: ${date.toLocaleString()}</div>
-        ${getStatusBadge(m.fixture.status.short)}
+        <div class="time" style="background:${color}">Kick-off: ${date.toLocaleString()}</div>
+        ${getStatusBadge(match.fixture.status.short)}
+        <div class="debug-info">Match ID: ${match.fixture.id}</div>
       `;
       upDiv.appendChild(box);
     });
-  }catch(err){ upDiv.innerHTML+=`<p class="placeholder">Error loading upcoming matches.</p>`; console.error(err); }
+    
+    showStatus(`Loaded ${data.response.length} upcoming match(es)`, 'info');
+    
+  } catch (err) {
+    console.error('Error loading upcoming matches:', err);
+    let errorMessage = `Error loading upcoming matches: ${err.message}`;
+    
+    if (err.message.includes('Failed to fetch')) {
+      errorMessage += '<br>This might be a CORS issue. Check browser console for details.';
+    } else if (err.message.includes('quota')) {
+      errorMessage += '<br>API quota might be exceeded. Try again later.';
+    }
+    
+    upDiv.innerHTML += `
+      <div class="error">
+        ${errorMessage}
+        <div class="debug-info">URL: ${url}</div>
+      </div>
+    `;
+    showStatus('Failed to load upcoming matches', 'error');
+  }
 }
 
 function showSection(type){
-  const live=document.getElementById("live-matches");
-  const upcoming=document.getElementById("upcoming-matches");
+  const live = document.getElementById("live-matches");
+  const upcoming = document.getElementById("upcoming-matches");
   document.getElementById("liveBtn").classList.remove("active");
   document.getElementById("upcomingBtn").classList.remove("active");
-  if(type==="live"){ live.style.display="block"; upcoming.style.display="none"; document.getElementById("liveBtn").classList.add("active"); loadLiveMatches(currentLeagueId); }
-  else{ live.style.display="none"; upcoming.style.display="block"; document.getElementById("upcomingBtn").classList.add("active"); loadUpcomingMatches(currentLeagueId); }
+  
+  if(type === "live"){
+    live.style.display = "block";
+    upcoming.style.display = "none";
+    document.getElementById("liveBtn").classList.add("active");
+    loadLiveMatches(currentLeagueId);
+  } else {
+    live.style.display = "none";
+    upcoming.style.display = "block";
+    document.getElementById("upcomingBtn").classList.add("active");
+    loadUpcomingMatches(currentLeagueId);
+  }
 }
 
-setInterval(()=>{
-  if(document.getElementById("live-matches").style.display==="block") loadLiveMatches(currentLeagueId);
-  else loadUpcomingMatches(currentLeagueId);
-},30000);
+// Auto-refresh every 30 seconds for live matches only
+setInterval(() => {
+  if(document.getElementById("live-matches").style.display === "block") {
+    console.log('Auto-refreshing live matches...');
+    loadLiveMatches(currentLeagueId);
+  }
+}, 30000);
 
-window.onload=()=>{ loadLeague(currentLeagueId,document.querySelector(`nav button[data-league="${currentLeagueId}"]`)); };
+// Initialize on load
+window.onload = () => {
+  console.log('Initializing football scores app...');
+  console.log('Current season:', currentSeason);
+  console.log('API Key present:', API_KEY && !API_KEY.includes("YOUR_ACTUAL_API_KEY"));
+  
+  loadLeague(currentLeagueId, document.querySelector(`nav button[data-league="${currentLeagueId}"]`));
+};
 </script>
 
 </body>
