@@ -1,34 +1,51 @@
 <script>
 function getStatusBadge(status){
-  const color=statusColors[status]||"#6c757d";
-  const text={"NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time","FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned","LIVE":"Live"}[status]||status;
+  const color = statusColors[status] || "#6c757d";
+  const text = {
+    "NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time",
+    "FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned",
+    "LIVE":"Live"
+  }[status] || status;
   return `<div class="status" style="background:${color}">${text}</div>`;
 }
 
-let currentLeagueId=39;
+let currentLeagueId = 39; // EPL by default
 
-async function loadLeague(leagueId,btn){
-  currentLeagueId=leagueId;
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+async function loadLeague(leagueId, btn){
+  currentLeagueId = leagueId;
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  if(document.getElementById("live-matches").style.display==="block") await loadLiveMatches(leagueId);
-  else await loadUpcomingMatches(leagueId);
+  if(document.getElementById("live-matches").style.display === "block") 
+    await loadLiveMatches(leagueId);
+  else 
+    await loadUpcomingMatches(leagueId);
 }
 
 async function loadLiveMatches(leagueId){
-  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
-  const options={method:"GET",headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
-  const liveDiv=document.getElementById("live-matches");
-  liveDiv.innerHTML=`<div class="section-title">🔴 Live Matches</div>`;
-  try{
-    const res=await fetch(url,options);
-    const data=await res.json();
-    if(!data.response||data.response.length===0){ liveDiv.innerHTML+=`<p class="placeholder">No live matches right now.</p>`; return; }
-    data.response.forEach(m=>{
-      const box=document.createElement("div"); box.className="match-box";
-      const color=leagueColors[leagueId]||'#1e90ff';
-      const status=m.fixture.status.short==="LIVE"?"LIVE":m.fixture.status.short;
-      box.innerHTML=`
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
+  const options = {
+    method:"GET",
+    headers:{
+      "x-rapidapi-key": bcb3327d3417bafd64a44c4e92b40151,
+      "x-rapidapi-host":"api-football-v1.p.rapidapi.com"
+    }
+  };
+  const liveDiv = document.getElementById("live-matches");
+  liveDiv.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    console.log("Live matches response:", data); // ✅ Debug
+    if(!data.response || data.response.length === 0){
+      liveDiv.innerHTML += `<p class="placeholder">No live matches right now.</p>`;
+      return;
+    }
+    data.response.forEach(m => {
+      const box = document.createElement("div"); 
+      box.className = "match-box";
+      const color = leagueColors[leagueId] || '#1e90ff';
+      const status = m.fixture.status.short === "LIVE" ? "LIVE" : m.fixture.status.short;
+      box.innerHTML = `
         <div class="teams">
           <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
           <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
@@ -39,57 +56,86 @@ async function loadLiveMatches(leagueId){
       `;
       liveDiv.appendChild(box);
     });
-  }catch(err){ liveDiv.innerHTML+=`<p class="placeholder">Error loading live matches.</p>`; console.error(err); }
+  } catch(err){
+    liveDiv.innerHTML += `<p class="placeholder">Error loading live matches.</p>`;
+    console.error(err);
+  }
 }
 
 async function loadUpcomingMatches(leagueId){
-  // ✅ FIX: use from/to instead of next=10
-  const today = new Date();
-  const to = new Date();
-  to.setDate(today.getDate() + 7); // get matches in the next 7 days
+  // ✅ Use date range instead of "next=10"
+  const today = new Date().toISOString().split("T")[0];
+  const future = new Date();
+  future.setDate(future.getDate() + 7); // next 7 days
+  const futureDate = future.toISOString().split("T")[0];
 
-  const fromDate = today.toISOString().split("T")[0];
-  const toDate = to.toISOString().split("T")[0];
-
-  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&from=${fromDate}&to=${toDate}&timezone=UTC`;
-
-  const options={method:"GET",headers:{"x-rapidapi-key":bcb3327d3417bafd64a44c4e92b40151,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
-  const upDiv=document.getElementById("upcoming-matches");
-  upDiv.innerHTML=`<div class="section-title">📅 Upcoming Matches</div>`;
-  try{
-    const res=await fetch(url,options);
-    const data=await res.json();
-    if(!data.response||data.response.length===0){ upDiv.innerHTML+=`<p class="placeholder">No upcoming matches found.</p>`; return; }
-    data.response.forEach(m=>{
-      const date=new Date(m.fixture.date);
-      const box=document.createElement("div"); box.className="match-box";
-      const color=leagueColors[leagueId]||'#1e90ff';
-      box.innerHTML=`
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&from=${today}&to=${futureDate}&timezone=UTC`;
+  const options = {
+    method:"GET",
+    headers:{
+      "x-rapidapi-key": API_KEY,
+      "x-rapidapi-host":"api-football-v1.p.rapidapi.com"
+    }
+  };
+  const upDiv = document.getElementById("upcoming-matches");
+  upDiv.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    console.log("Upcoming matches response:", data); // ✅ Debug
+    if(!data.response || data.response.length === 0){
+      upDiv.innerHTML += `<p class="placeholder">No upcoming matches found.</p>`;
+      return;
+    }
+    data.response.forEach(m => {
+      const date = new Date(m.fixture.date);
+      const box = document.createElement("div"); 
+      box.className = "match-box";
+      const color = leagueColors[leagueId] || '#1e90ff';
+      box.innerHTML = `
         <div class="teams">
           <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
           <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
         </div>
-        <div class="time" style="background:${color}; padding:4px 8px; border-radius:6px;">Kick-off: ${date.toLocaleString()}</div>
+        <div class="time" style="background:${color}; padding:4px 8px; border-radius:6px;">
+          Kick-off: ${date.toLocaleString()}
+        </div>
         ${getStatusBadge(m.fixture.status.short)}
       `;
       upDiv.appendChild(box);
     });
-  }catch(err){ upDiv.innerHTML+=`<p class="placeholder">Error loading upcoming matches.</p>`; console.error(err); }
+  } catch(err){
+    upDiv.innerHTML += `<p class="placeholder">Error loading upcoming matches.</p>`;
+    console.error(err);
+  }
 }
 
 function showSection(type){
-  const live=document.getElementById("live-matches");
-  const upcoming=document.getElementById("upcoming-matches");
+  const live = document.getElementById("live-matches");
+  const upcoming = document.getElementById("upcoming-matches");
   document.getElementById("liveBtn").classList.remove("active");
   document.getElementById("upcomingBtn").classList.remove("active");
-  if(type==="live"){ live.style.display="block"; upcoming.style.display="none"; document.getElementById("liveBtn").classList.add("active"); loadLiveMatches(currentLeagueId); }
-  else{ live.style.display="none"; upcoming.style.display="block"; document.getElementById("upcomingBtn").classList.add("active"); loadUpcomingMatches(currentLeagueId); }
+  if(type === "live"){
+    live.style.display = "block"; 
+    upcoming.style.display = "none"; 
+    document.getElementById("liveBtn").classList.add("active"); 
+    loadLiveMatches(currentLeagueId);
+  } else {
+    live.style.display = "none"; 
+    upcoming.style.display = "block"; 
+    document.getElementById("upcomingBtn").classList.add("active"); 
+    loadUpcomingMatches(currentLeagueId);
+  }
 }
 
 setInterval(()=>{
-  if(document.getElementById("live-matches").style.display==="block") loadLiveMatches(currentLeagueId);
-  else loadUpcomingMatches(currentLeagueId);
-},30000);
+  if(document.getElementById("live-matches").style.display === "block") 
+    loadLiveMatches(currentLeagueId);
+  else 
+    loadUpcomingMatches(currentLeagueId);
+}, 30000);
 
-window.onload=()=>{ loadLeague(currentLeagueId,document.querySelector(`nav button[data-league="${currentLeagueId}"]`)); };
+window.onload = ()=>{
+  loadLeague(currentLeagueId, document.querySelector(`nav button[data-league="${currentLeagueId}"]`));
+};
 </script>
