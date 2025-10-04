@@ -137,8 +137,10 @@
 
 <script>
 const API_KEY="427c7eed27f749bfa40954e947f72a19";
-const today=new Date();
-let currentSeason=today.getMonth()>=7?today.getFullYear():today.getFullYear()-1;
+
+const today = new Date();
+let currentSeason = (today.getMonth() + 1 >= 7) ? today.getFullYear() : today.getFullYear() - 1;
+
 const leagueColors={39:'#1E90FF',140:'#FF0000',135:'#00C851',78:'#FF8800',61:'#800080'};
 const statusColors={"NS":"#6c757d","1H":"#28a745","2H":"#28a745","HT":"#ffc107","FT":"#dc3545","PST":"#6c757d","CANC":"#6c757d","ABD":"#6c757d","LIVE":"#28a745"};
 
@@ -150,6 +152,18 @@ function getStatusBadge(status){
 
 let currentLeagueId=39;
 
+// ✅ Season fallback
+async function fetchWithSeasonFallback(url,options){
+  let res=await fetch(url,options);
+  let data=await res.json();
+  if(data.response && data.response.length>0) return data;
+
+  const fallbackUrl=url.replace(`season=${currentSeason}`,`season=${currentSeason-1}`);
+  res=await fetch(fallbackUrl,options);
+  data=await res.json();
+  return data;
+}
+
 async function loadLeague(leagueId,btn){
   currentLeagueId=leagueId;
   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
@@ -158,14 +172,15 @@ async function loadLeague(leagueId,btn){
   else await loadUpcomingMatches(leagueId);
 }
 
+// ✅ Live matches with fallback
 async function loadLiveMatches(leagueId){
-  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
+  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&live=all`;
   const options={method:"GET",headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
   const liveDiv=document.getElementById("live-matches");
   liveDiv.innerHTML=`<div class="section-title">🔴 Live Matches</div>`;
   try{
-    const res=await fetch(url,options);
-    const data=await res.json();
+    const data=await fetchWithSeasonFallback(url,options);
+    console.log("Live data:",data);
     if(!data.response||data.response.length===0){ liveDiv.innerHTML+=`<p class="placeholder">No live matches right now.</p>`; return; }
     data.response.forEach(m=>{
       const box=document.createElement("div"); box.className="match-box";
@@ -185,14 +200,15 @@ async function loadLiveMatches(leagueId){
   }catch(err){ liveDiv.innerHTML+=`<p class="placeholder">Error loading live matches.</p>`; console.error(err); }
 }
 
+// ✅ Upcoming matches with fallback
 async function loadUpcomingMatches(leagueId){
   const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10&timezone=UTC`;
   const options={method:"GET",headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
   const upDiv=document.getElementById("upcoming-matches");
   upDiv.innerHTML=`<div class="section-title">📅 Upcoming Matches</div>`;
   try{
-    const res=await fetch(url,options);
-    const data=await res.json();
+    const data=await fetchWithSeasonFallback(url,options);
+    console.log("Upcoming data:",data);
     if(!data.response||data.response.length===0){ upDiv.innerHTML+=`<p class="placeholder">No upcoming matches found.</p>`; return; }
     data.response.forEach(m=>{
       const date=new Date(m.fixture.date);
