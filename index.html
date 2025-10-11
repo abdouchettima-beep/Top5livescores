@@ -81,14 +81,18 @@
   </div>
 
   <script>
-    const apiKey = "bcb3327d3417bafd64a44c4e92b40151"; // 👈 Replace with your API key
-    const season = new Date().getFullYear();
+    const apiKey = "bcb3327d3417bafd64a44c4e92b40151"; // 👈 Replace this with your actual RapidAPI key
     const proxy = "https://api.allorigins.win/get?url=";
+    const season = new Date().getFullYear();
 
     async function fetchAPI(url) {
       const fullUrl = proxy + encodeURIComponent(url);
-      const response = await fetch(fullUrl);
-      if (!response.ok) throw new Error("API error");
+      const response = await fetch(fullUrl, {
+        headers: {
+          "X-RapidAPI-Key": apiKey,
+          "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
+        }
+      });
       const data = await response.json();
       return JSON.parse(data.contents);
     }
@@ -100,59 +104,4 @@
       try {
         // Fetch Live Matches
         const liveURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${season}`;
-        const liveData = await fetchAPI(liveURL, {
-          headers: {
-            "X-RapidAPI-Key": apiKey,
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
-          }
-        });
-
-        displayMatches(liveData.response, "liveMatches", "No live matches right now.");
-
-        // Fetch Upcoming Matches
-        const upcomingURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${season}&next=10`;
-        const upcomingData = await fetchAPI(upcomingURL, {
-          headers: {
-            "X-RapidAPI-Key": apiKey,
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
-          }
-        });
-
-        displayMatches(upcomingData.response, "upcomingMatches", "No upcoming matches found.");
-      } catch (error) {
-        document.getElementById("liveMatches").innerHTML = "Error loading live matches.";
-        document.getElementById("upcomingMatches").innerHTML = "Error loading upcoming matches.";
-        console.error(error);
-      }
-    }
-
-    function displayMatches(matches, containerId, emptyMsg) {
-      const container = document.getElementById(containerId);
-      if (!matches || matches.length === 0) {
-        container.innerHTML = `<p>${emptyMsg}</p>`;
-        return;
-      }
-      container.innerHTML = "";
-      matches.forEach(match => {
-        const home = match.teams.home.name;
-        const away = match.teams.away.name;
-        const homeScore = match.goals.home ?? "-";
-        const awayScore = match.goals.away ?? "-";
-        const date = new Date(match.fixture.date).toLocaleString();
-
-        container.innerHTML += `
-          <div class="match">
-            <p><strong>${home}</strong> vs <strong>${away}</strong></p>
-            <p>🕒 ${date}</p>
-            <p>🏆 ${match.league.name}</p>
-            <p>🔢 Score: ${homeScore} - ${awayScore}</p>
-          </div>
-        `;
-      });
-    }
-
-    // Load Premier League by default
-    loadLeague(39);
-  </script>
-</body>
-</html>
+        const liveData = await
