@@ -1,344 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚽ Live Football Scores</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TOP 5 LEAGUES</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  /* General Reset */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Roboto', sans-serif;
-    background: radial-gradient(circle at top, #0a0a0a 0%, #121212 100%);
-    color: #fff;
-    overflow-x: hidden;
+  /* Reset */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Roboto',sans-serif;
+    background: radial-gradient(circle at top, #060607 0%, #0f1113 100%);
+    color:#fff;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
+
+  /* Splash overlay */
+  .splash{
+    position:fixed;inset:0;z-index:9999;
+    display:flex;align-items:center;justify-content:center;
+    background: linear-gradient(180deg, rgba(2,6,23,0.95), rgba(4,10,30,0.95));
+    flex-direction:column;
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .splash.hidden{opacity:0;pointer-events:none;transform:scale(.98)}
+  .splash .ball{font-size:48px;margin-bottom:10px;animation:pop 1s ease}
+  .splash .title{font-size:22px;font-weight:700;letter-spacing:1px}
+  @keyframes pop{0%{transform:translateY(8px);opacity:0}60%{transform:translateY(-6px);opacity:1}100%{transform:translateY(0)}}
 
   /* Header */
-  header {
-    background: linear-gradient(90deg, #1e3c72, #2a5298);
-    color: #fff;
-    text-align: center;
-    font-size: 2em;
-    font-weight: 700;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-    letter-spacing: 1px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  header{
+    position:sticky;top:0;z-index:200;
+    padding:18px 16px;
+    background:linear-gradient(90deg,#1EA36B,#1E90FF);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,0.45);
+    font-weight:700;font-size:1.15rem;
+  }
+  .header-inner{display:flex;align-items:center;gap:10px;width:100%;max-width:980px;justify-content:center}
+  .app-title{display:flex;align-items:center;gap:10px}
+  .app-title .ball-small{font-size:20px}
+  /* Floating controls container (top-right) */
+  .controls{
+    position:fixed;right:14px;top:14px;z-index:300;
+    display:flex;gap:8px;align-items:center;
   }
 
-  /* Ad Banner */
-  #admob-banner {
-    background: #1b1b1b;
-    color: #aaa;
-    text-align: center;
-    padding: 15px;
-    margin: 15px auto;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 520px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-    font-size: 0.95em;
+  /* spinner */
+  .spinner{
+    width:30px;height:30px;border-radius:50%;
+    border:3px solid rgba(255,255,255,0.12);
+    border-top-color:rgba(255,255,255,0.95);
+    display:inline-block;
+    transform-origin:center;
+    animation:spin 1s linear infinite;
+    box-shadow:0 2px 8px rgba(0,0,0,0.4);
+    display:none; /* shown only while loading */
+    background:transparent;
+  }
+  .spinner.visible{display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* theme toggle */
+  .theme-toggle{
+    width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.12));
+    box-shadow:0 6px 20px rgba(0,0,0,0.35);
+    cursor:pointer;border:none;color:#fff;font-size:18px;
   }
 
-  /* League Buttons */
-  nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin: 12px 0;
-  }
-  nav button {
-    flex: 1 1 120px;
-    border: none;
-    background: #202020;
-    color: #fff;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-  }
-  nav button:hover {
-    transform: translateY(-3px);
-    background: #2c2c2c;
-  }
-  nav button.active {
-    background: linear-gradient(90deg, #1e90ff, #00bfff);
-    box-shadow: 0 4px 15px rgba(30, 144, 255, 0.6);
-  }
-  .league-logo {
-    width: 22px;
-    height: 22px;
-    filter: drop-shadow(0 0 4px rgba(255,255,255,0.8));
+  /* Main container */
+  .container{max-width:980px;margin:16px auto;padding-bottom:80px}
+  #admob-banner{
+    margin:12px auto;border-radius:12px;max-width:520px;width:90%;
+    background:rgba(0,0,0,0.25);padding:12px;text-align:center;color:#cfcfcf;box-shadow:0 6px 18px rgba(0,0,0,0.4)
   }
 
-  /* Toggle Bar */
-  .toggle-bar {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 18px 0;
+  /* Leagues */
+  nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+  nav button{
+    display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:none;
+    background:rgba(255,255,255,0.04);color:#fff;font-weight:600;cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,0.45);transition:all .22s ease;
   }
-  .toggle-bar button {
-    border: none;
-    padding: 12px 18px;
-    border-radius: 10px;
-    font-weight: 600;
-    background: #222;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  nav button:hover{transform:translateY(-3px)}
+  nav button.active{background:linear-gradient(90deg,#1E90FF,#00B7FF);box-shadow:0 10px 34px rgba(30,144,255,0.24)}
+
+  .league-logo{width:22px;height:22px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))}
+
+  /* toggle bar */
+  .toggle-bar{display:flex;justify-content:center;gap:10px;margin:12px 0}
+  .toggle-bar button{
+    padding:10px 16px;border-radius:12px;border:none;background:rgba(255,255,255,0.04);
+    font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35)
   }
-  .toggle-bar button:hover {
-    transform: translateY(-2px);
-    background: #333;
+  .toggle-bar button.active{background:linear-gradient(90deg,#28a745,#3bd07f);box-shadow:0 8px 24px rgba(59,208,127,0.12)}
+  .section-title{font-weight:800;margin:8px 6px 14px;color:#fff;font-size:1.15rem;padding-left:6%}
+
+  /* Matches area */
+  .matches-area{display:flex;flex-direction:column;gap:12px}
+  .match-box{
+    background:linear-gradient(145deg,#141414,#1f1f1f);
+    border-radius:14px;padding:14px;margin:0 auto;width:90%;max-width:560px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.6);
+    transition:transform .26s ease,box-shadow .26s ease;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    border:1px solid rgba(255,255,255,0.03);
   }
-  .toggle-bar button.active {
-    background: linear-gradient(90deg, #28a745, #3edc81);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(40,167,69,0.6);
+  .match-box:hover{transform:translateY(-6px);box-shadow:0 12px 34px rgba(0,0,0,0.7)}
+  .teams{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:1.03rem;flex-wrap:wrap}
+  .team-logo{width:36px;height:36px;object-fit:contain}
+  .score{padding:6px 14px;border-radius:10px;font-weight:800;font-size:1.2rem;color:#fff}
+  .time,.status{padding:6px 10px;border-radius:8px;font-weight:600}
+  .placeholder{color:#9ea3ad;font-style:italic;margin:12px 0;text-align:center}
+
+  /* Glow effect for card - will change with theme via class */
+  .match-box.glow{
+    box-shadow:0 8px 30px rgba(30,144,255,0.06), 0 2px 6px rgba(0,0,0,0.6);
+    border:1px solid rgba(30,144,255,0.08);
+  }
+  .match-box.glow-green{
+    box-shadow:0 8px 30px rgba(30,200,120,0.06), 0 2px 6px rgba(0,0,0,0.6);
+    border:1px solid rgba(30,200,120,0.06);
   }
 
-  /* Section Title */
-  .section-title {
-    font-size: 1.4em;
-    font-weight: 700;
-    padding-left: 5%;
-    margin: 18px 0 12px;
+  /* Pull-to-refresh indicator (top area) */
+  .pull-indicator{
+    position:relative;top:0;left:0;width:100%;height:0;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
+    transition:height .18s ease;
   }
+  .pull-indicator .bar{
+    width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,0.12);border-top-color:#fff;animation:spin 1s linear infinite;opacity:0;transform:translateY(10px);transition:opacity .18s linear,transform .18s linear;
+  }
+  .pull-indicator.show{height:60px}
+  .pull-indicator.show .bar{opacity:1;transform:translateY(0)}
 
-  /* Match Cards */
-  .match-box {
-    background: linear-gradient(145deg, #1e1e1e, #262626);
-    border-radius: 16px;
-    padding: 16px;
-    width: 90%;
-    max-width: 520px;
-    margin: 12px auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .match-box:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
-  }
+  /* small utilities */
+  .muted{color:#bfc7cf}
+  .center{display:flex;justify-content:center;align-items:center}
 
-  .teams {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    font-weight: 600;
-    font-size: 1.05em;
-    text-align: center;
+  /* Light theme overrides */
+  body.light{
+    background: linear-gradient(180deg,#f6f9ff,#e9f3ff);
+    color:#0b1220;
   }
-  .team-logo {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
-  }
+  body.light header{background:linear-gradient(90deg,#1EA36B,#1E90FF)}
+  body.light .match-box{background:linear-gradient(145deg,#ffffff,#f3f8ff);box-shadow:0 8px 20px rgba(30,144,255,0.06)}
+  body.light .match-box.glow{box-shadow:0 8px 30px rgba(30,144,255,0.12)}
+  body.light .match-box.glow-green{box-shadow:0 8px 30px rgba(30,200,120,0.12)}
+  body.light nav button{background:rgba(10,10,10,0.03);color:#0b1220}
+  body.light #admob-banner{background:#ffffff;border:1px solid rgba(0,0,0,0.04);color:#475466}
+  body.light .toggle-bar button{background:rgba(0,0,0,0.04);color:#0b1220}
 
-  .score {
-    margin-top: 10px;
-    font-size: 1.3em;
-    font-weight: 700;
-    background: #1e90ff;
-    padding: 6px 14px;
-    border-radius: 10px;
-    display: inline-block;
-  }
-
-  .time, .status {
-    margin-top: 8px;
-    font-size: 0.95em;
-    font-weight: 500;
-    background: #333;
-    padding: 6px 10px;
-    border-radius: 8px;
-    display: inline-block;
-  }
-
-  .placeholder {
-    text-align: center;
-    color: #999;
-    margin: 15px 0;
-    font-style: italic;
-  }
-
-  /* Animations */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .match-box { animation: fadeIn 0.4s ease-in-out; }
-
-  /* Responsive */
-  @media(max-width: 480px){
-    nav button { flex: 1 1 100px; font-size: 0.9em; padding: 10px 8px; }
-    .toggle-bar button { padding: 10px 14px; font-size: 0.9em; }
-    .team-logo { width: 26px; height: 26px; }
+  /* responsive tweaks */
+  @media(max-width:480px){
+    .teams{font-size:0.98rem}
+    .team-logo{width:28px;height:28px}
+    .score{font-size:1.05rem}
+    .header-inner{padding:0 8px}
+    .controls{right:8px;top:8px}
+    header{padding:14px 8px}
   }
 </style>
 </head>
 <body>
+  <!-- Splash -->
+  <div class="splash" id="splash">
+    <div class="ball">⚽</div>
+    <div class="title">TOP 5 LEAGUES</div>
+  </div>
 
-<header>⚽ Live Football Scores</header>
+  <!-- Header -->
+  <header>
+    <div class="header-inner" role="banner">
+      <div class="app-title">
+        <div class="ball-small">⚽</div>
+        <div>TOP 5 LEAGUES</div>
+      </div>
+    </div>
+  </header>
 
-<div id="admob-banner">AdMob Banner Placeholder</div>
+  <!-- Floating controls: spinner + theme toggle -->
+  <div class="controls" aria-hidden="false">
+    <div class="spinner" id="topSpinner" title="Refreshing..."></div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+  </div>
 
-<nav>
-  <button data-league="39" onclick="loadLeague(39,this)">
-    <img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png"> Premier League
-  </button>
-  <button data-league="140" onclick="loadLeague(140,this)">
-    <img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png"> La Liga
-  </button>
-  <button data-league="135" onclick="loadLeague(135,this)">
-    <img class="league-logo" src="https://media.api-sports.io/football/leagues/135.png"> Serie A
-  </button>
-  <button data-league="78" onclick="loadLeague(78,this)">
-    <img class="league-logo" src="https://media.api-sports.io/football/leagues/78.png"> Bundesliga
-  </button>
-  <button data-league="61" onclick="loadLeague(61,this)">
-    <img class="league-logo" src="https://media.api-sports.io/football/leagues/61.png"> Ligue 1
-  </button>
-</nav>
+  <!-- Pull-to-refresh indicator -->
+  <div class="pull-indicator" id="pullIndicator"><div class="bar"></div></div>
 
-<div class="toggle-bar">
-  <button id="liveBtn" class="active" onclick="showSection('live')">🔴 Live Matches</button>
-  <button id="upcomingBtn" onclick="showSection('upcoming')">📅 Upcoming Matches</button>
-</div>
+  <!-- Main Content -->
+  <main class="container" id="mainContent" role="main" aria-live="polite">
+    <div id="admob-banner">AdMob Banner Placeholder</div>
 
-<div id="live-matches"></div>
-<div id="upcoming-matches" style="display:none;"></div>
+    <!-- Leagues -->
+    <nav id="leagueNav" aria-label="Leagues">
+      <button data-league="39" onclick="loadLeague(39,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png" alt="">Premier League</button>
+      <button data-league="140" onclick="loadLeague(140,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png" alt="">La Liga</button>
+      <button data-league="135" onclick="loadLeague(135,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/135.png" alt="">Serie A</button>
+      <button data-league="78" onclick="loadLeague(78,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/78.png" alt="">Bundesliga</button>
+      <button data-league="61" onclick="loadLeague(61,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/61.png" alt="">Ligue 1</button>
+    </nav>
+
+    <!-- Live / Upcoming toggles -->
+    <div class="toggle-bar" role="tablist" aria-label="Match type">
+      <button id="liveBtn" class="active" onclick="showSection('live')">🔴 Live Matches</button>
+      <button id="upcomingBtn" onclick="showSection('upcoming')">📅 Upcoming Matches</button>
+    </div>
+
+    <div id="matchesWrapper" class="matches-area">
+      <div id="live-matches"></div>
+      <div id="upcoming-matches" style="display:none;"></div>
+    </div>
+  </main>
 
 <script>
-const API_KEY="bcb3327d3417bafd64a44c4e92b40151";
-const today=new Date();
-let currentSeason=today.getMonth()>=7?today.getFullYear():today.getFullYear()-1;
-const leagueColors={39:'#1E90FF',140:'#FF0000',135:'#00C851',78:'#FF8800',61:'#800080'};
-const statusColors={"NS":"#6c757d","1H":"#28a745","2H":"#28a745","HT":"#ffc107","FT":"#dc3545","PST":"#6c757d","CANC":"#6c757d","ABD":"#6c757d","LIVE":"#28a745"};
+/* ---------- CONFIG ---------- */
+const API_KEY = "bcb3327d3417bafd64a44c4e92b40151"; // your key
+const AUTO_REFRESH_MS = 30000;
+const today = new Date();
+let currentSeason = (today.getMonth() >= 7) ? today.getFullYear() : (today.getFullYear() - 1);
+const leagueColors = {39:'#1E90FF',140:'#FF0000',135:'#00C851',78:'#FF8800',61:'#800080'};
+const statusColors = {"NS":"#6c757d","1H":"#28a745","2H":"#28a745","HT":"#ffc107","FT":"#dc3545","PST":"#6c757d","CANC":"#6c757d","ABD":"#6c757d","LIVE":"#28a745"};
+/* ---------------------------- */
 
+/* DOM */
+const splash = document.getElementById('splash');
+const topSpinner = document.getElementById('topSpinner');
+const themeToggle = document.getElementById('themeToggle');
+const liveBtn = document.getElementById('liveBtn');
+const upcomingBtn = document.getElementById('upcomingBtn');
+const liveDiv = document.getElementById('live-matches');
+const upcomingDiv = document.getElementById('upcoming-matches');
+const pullIndicator = document.getElementById('pullIndicator');
+const mainContent = document.getElementById('mainContent');
+
+let currentLeagueId = 39;
+let autoRefreshTimer = null;
+let displaying = 'live'; // 'live' or 'upcoming'
+let isFetching = false;
+
+/* THEME: detect & remember */
+function applyTheme(theme){
+  if(theme === 'light') document.body.classList.add('light');
+  else document.body.classList.remove('light');
+  themeToggle.textContent = (theme === 'light') ? '☀️' : '🌙';
+  localStorage.setItem('tpl_theme','' + theme);
+}
+function toggleTheme(){
+  const next = document.body.classList.contains('light') ? 'dark' : 'light';
+  applyTheme(next);
+}
+(function initTheme(){
+  const saved = localStorage.getItem('tpl_theme');
+  if(saved) applyTheme(saved);
+  else {
+    // pick based on prefers-color-scheme
+    const prefers = window.matchMedia && window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark';
+    applyTheme(prefers);
+  }
+})();
+
+themeToggle.addEventListener('click', ()=>{ toggleTheme(); });
+
+/* Spinner helpers */
+function showSpinner(){ topSpinner.classList.add('visible'); }
+function hideSpinner(){ topSpinner.classList.remove('visible'); }
+
+/* Helper to create status badge */
 function getStatusBadge(status){
-  const color=statusColors[status]||"#6c757d";
-  const text={"NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time","FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned","LIVE":"Live"}[status]||status;
-  return `<div class="status" style="background:${color}">${text}</div>`;
+  const color = statusColors[status] || "#6c757d";
+  const textMap = {"NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time","FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned","LIVE":"Live"};
+  const text = textMap[status] || status;
+  return `<div class="status" style="background:${color};color:#fff">${text}</div>`;
 }
 
-let currentLeagueId=39;
+/* Render helpers */
+function createMatchCard(m, leagueId, isLive=false){
+  const color = leagueColors[leagueId] || '#1E90FF';
+  const elapsed = m.fixture && (m.fixture.status && m.fixture.status.elapsed) ? m.fixture.status.elapsed : (isLive ? 0 : null);
+  const statusShort = m.fixture && m.fixture.status ? (m.fixture.status.short === 'LIVE' ? 'LIVE' : m.fixture.status.short) : 'NS';
+  const statusBadge = getStatusBadge(statusShort);
 
-async function loadLeague(leagueId,btn){
-  currentLeagueId=leagueId;
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  if(document.getElementById("live-matches").style.display==="block") await loadLiveMatches(leagueId);
-  else await loadUpcomingMatches(leagueId);
+  // choose glow by theme
+  const themeGlowClass = document.body.classList.contains('light') ? 'glow' : 'glow-green';
+
+  const homeGoals = (m.goals && typeof m.goals.home === 'number') ? m.goals.home : '-';
+  const awayGoals = (m.goals && typeof m.goals.away === 'number') ? m.goals.away : '-';
+
+  const dateStr = m.fixture && m.fixture.date ? new Date(m.fixture.date).toLocaleString() : '';
+
+  const card = document.createElement('div');
+  card.className = `match-box ${themeGlowClass}`;
+  card.innerHTML = `
+    <div class="teams">
+      <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name}
+      <span style="color:var(--muted)">vs</span>
+      <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
+    </div>
+    <div class="score" style="background:${color}">${homeGoals} - ${awayGoals}</div>
+    <div class="time" style="background:${color}; color:#fff">${isLive ? `⏱ ${elapsed || 0}'` : `Kick-off: ${dateStr}`}</div>
+    ${statusBadge}
+  `;
+  return card;
+}
+
+/* Fetch functions */
+async function fetchJSON(url){
+  const options = { method: 'GET', headers: {"x-rapidapi-key": API_KEY, "x-rapidapi-host":"api-football-v1.p.rapidapi.com"} };
+  const res = await fetch(url, options);
+  if(!res.ok) throw new Error('Network response not ok');
+  const json = await res.json();
+  return json;
 }
 
 async function loadLiveMatches(leagueId){
-  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
-  const options={method:"GET",headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
-  const liveDiv=document.getElementById("live-matches");
-  liveDiv.innerHTML=`<div class="section-title">🔴 Live Matches</div>`;
+  isFetching = true;
+  showSpinner();
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
+  liveDiv.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
   try{
-    const res=await fetch(url,options);
-    const data=await res.json();
-    if(!data.response||data.response.length===0){
-      liveDiv.innerHTML+=`<p class="placeholder">No live matches right now.</p>`;
-      return;
+    const data = await fetchJSON(url);
+    if(!data.response || data.response.length === 0){
+      liveDiv.innerHTML += `<p class="placeholder">No live matches right now.</p>`;
+    } else {
+      const list = document.createElement('div');
+      list.className = 'matches-list';
+      data.response.forEach(m=>{
+        list.appendChild(createMatchCard(m, leagueId, true));
+      });
+      liveDiv.appendChild(list);
     }
-    data.response.forEach(m=>{
-      const box=document.createElement("div"); box.className="match-box";
-      const color=leagueColors[leagueId]||'#1e90ff';
-      const status=m.fixture.status.short==="LIVE"?"LIVE":m.fixture.status.short;
-      box.innerHTML=`
-        <div class="teams">
-          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name}
-          <span style="color:#bbb;">vs</span>
-          <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
-        </div>
-        <div class="score" style="background:${color}">${m.goals.home} - ${m.goals.away}</div>
-        <div class="time" style="background:${color}">⏱ ${m.fixture.status.elapsed||0}'</div>
-        ${getStatusBadge(status)}
-      `;
-      liveDiv.appendChild(box);
-    });
-  }catch(err){
-    liveDiv.innerHTML+=`<p class="placeholder">Error loading live matches.</p>`;
-    console.error(err);
+  }catch(e){
+    console.error(e);
+    liveDiv.innerHTML += `<p class="placeholder">Error loading live matches.</p>`;
+  } finally {
+    isFetching = false;
+    hideSpinner();
   }
 }
 
 async function loadUpcomingMatches(leagueId){
-  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10&timezone=UTC`;
-  const options={method:"GET",headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}};
-  const upDiv=document.getElementById("upcoming-matches");
-  upDiv.innerHTML=`<div class="section-title">📅 Upcoming Matches</div>`;
+  isFetching = true;
+  showSpinner();
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10&timezone=UTC`;
+  upcomingDiv.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
   try{
-    const res=await fetch(url,options);
-    const data=await res.json();
-    if(!data.response||data.response.length===0){
-      upDiv.innerHTML+=`<p class="placeholder">No upcoming matches found.</p>`;
-      return;
+    const data = await fetchJSON(url);
+    if(!data.response || data.response.length === 0){
+      upcomingDiv.innerHTML += `<p class="placeholder">No upcoming matches found.</p>`;
+    } else {
+      const list = document.createElement('div');
+      list.className = 'matches-list';
+      data.response.forEach(m=>{
+        list.appendChild(createMatchCard(m, leagueId, false));
+      });
+      upcomingDiv.appendChild(list);
     }
-    data.response.forEach(m=>{
-      const date=new Date(m.fixture.date);
-      const box=document.createElement("div"); box.className="match-box";
-      const color=leagueColors[leagueId]||'#1e90ff';
-      box.innerHTML=`
-        <div class="teams">
-          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name}
-          <span style="color:#bbb;">vs</span>
-          <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
-        </div>
-        <div class="time" style="background:${color};">Kick-off: ${date.toLocaleString()}</div>
-        ${getStatusBadge(m.fixture.status.short)}
-      `;
-      upDiv.appendChild(box);
-    });
-  }catch(err){
-    upDiv.innerHTML+=`<p class="placeholder">Error loading upcoming matches.</p>`;
-    console.error(err);
+  }catch(e){
+    console.error(e);
+    upcomingDiv.innerHTML += `<p class="placeholder">Error loading upcoming matches.</p>`;
+  } finally {
+    isFetching = false;
+    hideSpinner();
+  }
+}
+
+/* Switching league & sections */
+async function loadLeague(leagueId, btnEl){
+  currentLeagueId = leagueId;
+  // active class
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  if(btnEl) btnEl.classList.add('active');
+  if(displaying === 'live'){
+    await loadLiveMatches(leagueId);
+  } else {
+    await loadUpcomingMatches(leagueId);
   }
 }
 
 function showSection(type){
-  const live=document.getElementById("live-matches");
-  const upcoming=document.getElementById("upcoming-matches");
-  document.getElementById("liveBtn").classList.remove("active");
-  document.getElementById("upcomingBtn").classList.remove("active");
-  if(type==="live"){
-    live.style.display="block"; upcoming.style.display="none";
-    document.getElementById("liveBtn").classList.add("active");
+  displaying = type;
+  liveBtn.classList.remove('active');
+  upcomingBtn.classList.remove('active');
+  if(type === 'live'){
+    liveBtn.classList.add('active');
+    liveDiv.style.display = 'block';
+    upcomingDiv.style.display = 'none';
     loadLiveMatches(currentLeagueId);
   } else {
-    live.style.display="none"; upcoming.style.display="block";
-    document.getElementById("upcomingBtn").classList.add("active");
+    upcomingBtn.classList.add('active');
+    liveDiv.style.display = 'none';
+    upcomingDiv.style.display = 'block';
     loadUpcomingMatches(currentLeagueId);
   }
 }
 
-setInterval(()=>{
-  if(document.getElementById("live-matches").style.display==="block") loadLiveMatches(currentLeagueId);
-  else loadUpcomingMatches(currentLeagueId);
-},30000);
+/* Auto refresh management */
+function startAutoRefresh(){
+  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(()=>{
+    if(displaying === 'live') loadLiveMatches(currentLeagueId);
+    else loadUpcomingMatches(currentLeagueId);
+  }, AUTO_REFRESH_MS);
+}
 
-window.onload=()=>{ loadLeague(currentLeagueId,document.querySelector(`nav button[data-league="${currentLeagueId}"]`)); };
+/* Pull-to-refresh implementation (mobile-friendly)
+   Simple: detect touchstart at top of scroll and pull distance */
+let touchStartY = 0;
+let touchCurrentY = 0;
+let pulling = false;
+const PULL_THRESHOLD = 70;
+
+function onTouchStart(e){
+  if(document.scrollingElement.scrollTop > 6) return; // only when near top
+  touchStartY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+  touchCurrentY = touchStartY;
+  pulling = true;
+}
+function onTouchMove(e){
+  if(!pulling) return;
+  const y = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+  touchCurrentY = y;
+  const diff = Math.max(0, touchCurrentY - touchStartY);
+  if(diff > 6 && document.scrollingElement.scrollTop <= 6){
+    // show indicator proportional to diff
+    pullIndicator.style.height = Math.min(120, diff) + 'px';
+    if(diff > PULL_THRESHOLD) pullIndicator.classList.add('show');
+    else pullIndicator.classList.remove('show');
+    e.preventDefault && e.preventDefault();
+  }
+}
+function onTouchEnd(e){
+  if(!pulling) return;
+  pulling = false;
+  const diff = Math.max(0, touchCurrentY - touchStartY);
+  pullIndicator.style.height = '0';
+  if(diff > PULL_THRESHOLD){
+    // trigger refresh
+    triggerManualRefresh();
+  } else {
+    pullIndicator.classList.remove('show');
+  }
+  touchStartY = touchCurrentY = 0;
+}
+
+function triggerManualRefresh(){
+  // show spinner and reload current view
+  if(isFetching) return;
+  showSpinner();
+  if(displaying === 'live') loadLiveMatches(currentLeagueId).then(()=>pullIndicator.classList.remove('show'));
+  else loadUpcomingMatches(currentLeagueId).then(()=>pullIndicator.classList.remove('show'));
+}
+
+/* Initial load and splash */
+async function initialBoot(){
+  // show splash for ~1.2-1.6s then load content
+  setTimeout(async ()=>{
+    splash.classList.add('hidden');
+    setTimeout(()=>splash.style.display='none',650);
+    await loadLeague(currentLeagueId, document.querySelector(`nav button[data-league="${currentLeagueId}"]`));
+    startAutoRefresh();
+  }, 1400);
+}
+
+/* Hook events for pull-to-refresh */
+window.addEventListener('touchstart', onTouchStart, {passive:true});
+window.addEventListener('touchmove', onTouchMove, {passive:false});
+window.addEventListener('touchend', onTouchEnd, {passive:true});
+// For desktops - support mouse dragging (optional)
+window.addEventListener('mousedown', (e)=>{ if(e.button===0) onTouchStart(e); });
+window.addEventListener('mousemove', (e)=>{ if(pulling) onTouchMove(e); });
+window.addEventListener('mouseup', (e)=>{ if(pulling) onTouchEnd(e); });
+
+/* Make sure theme-dependent glows update when theme changes */
+const observer = new MutationObserver(()=> {
+  // Re-render current view quickly to apply glow classes
+  if(displaying === 'live') loadLiveMatches(currentLeagueId);
+  else loadUpcomingMatches(currentLeagueId);
+});
+observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+/* Expose some globals for debugging in console (optional) */
+window.TPL = {
+  loadLeague, loadLiveMatches, loadUpcomingMatches, triggerManualRefresh
+};
+
+/* Start app */
+initialBoot();
 </script>
 </body>
 </html>
