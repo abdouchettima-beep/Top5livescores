@@ -1,200 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚽ Live Football Scores</title>
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: #0d1117;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    .header {
-      background: #161b22;
-      padding: 10px;
-      font-size: 1.4em;
-      font-weight: bold;
-      color: #58a6ff;
-    }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    button {
-      background: #21262d;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button.active {
-      background: #58a6ff;
-      color: #000;
-    }
-    .match-box {
-      background: #21262d;
-      margin: 10px auto;
-      width: 90%;
-      border-radius: 12px;
-      padding: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .teams {
-      font-size: 1.1em;
-      margin-bottom: 6px;
-    }
-    .team-logo {
-      width: 22px;
-      height: 22px;
-      vertical-align: middle;
-      margin: 0 4px;
-      border-radius: 50%;
-    }
-    .score {
-      font-size: 1.3em;
-      font-weight: bold;
-      margin-top: 4px;
-    }
-    .section-title {
-      font-size: 1.3em;
-      margin: 20px 0 10px;
-      color: #58a6ff;
-    }
-    .placeholder {
-      color: gray;
-      margin: 20px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Football Scores</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f8f9fa; margin:0; text-align:center; }
+  header { background:#222; color:white; padding:15px; font-size:1.5em; font-weight:bold; }
+  nav { display:flex; justify-content:center; flex-wrap: wrap; margin:10px 0; }
+  nav button { flex:1 1 120px; margin:2px; padding:12px; border:none; background:#444; color:white; cursor:pointer; transition:0.3s; border-radius:6px; display:flex; align-items:center; justify-content:center; gap:5px; }
+  nav button:hover { background:#555; }
+  nav button.active { background:#007bff; }
+  .league-logo { width:20px; height:20px; object-fit:contain; }
+  .section-title { margin:20px 0 10px; font-size:1.3em; font-weight:bold; color:#333; }
+  .match-box { background:white; margin:10px auto; padding:15px; width:90%; max-width:500px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.15); text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .teams { font-size:1.1em; font-weight:bold; margin-bottom:5px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap: wrap; }
+  .team-logo { width:30px; height:30px; object-fit:contain; }
+  .score { font-size:1.2em; margin:5px 0; color:white; padding:3px 6px; border-radius:5px; }
+  .time { font-size:0.9em; color:white; padding:2px 5px; border-radius:4px; }
+  .status { font-size:0.9em; color:white; padding:2px 6px; border-radius:4px; margin-top:4px; font-weight:bold; }
+  .placeholder { color:gray; font-style:italic; margin:10px 0; }
+  #admob-banner { margin:20px auto; width:90%; max-width:500px; background:#ddd; height:60px; display:flex; align-items:center; justify-content:center; border-radius:10px; }
+</style>
 </head>
 <body>
-  <div class="header">⚽ Live Football Scores</div>
 
-  <div class="buttons">
-    <button id="liveBtn" class="active" onclick="showLive()">Live</button>
-    <button id="upcomingBtn" onclick="showUpcoming()">Upcoming</button>
-  </div>
+<header>⚽ Live Football Scores</header>
 
-  <div id="matches"></div>
+<!-- AdMob Banner Placeholder -->
+<div id="admob-banner">
+  <p>AdMob Banner (replace with real ad in app)</p>
+</div>
 
-  <script>
-    const API_KEY = "bcb3327d3417bafd64a44c4e92b40151"; // Replace this
-    const currentSeason = 2025;
-    const leagueId = 39; // Example: Premier League
+<nav>
+  <button onclick="loadLeague(39, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png"> Premier League</button>
+  <button onclick="loadLeague(140, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png"> La Liga</button>
+  <button onclick="loadLeague(135, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/135.png"> Serie A</button>
+  <button onclick="loadLeague(78, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/78.png"> Bundesliga</button>
+  <button onclick="loadLeague(61, this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/61.png"> Ligue 1</button>
+</nav>
 
-    const leagueColors = {
-      39: "#00b4d8", // Premier League
-      140: "#ffbe0b", // La Liga
-      135: "#ef233c", // Serie A
-      78: "#3a86ff",  // Bundesliga
-      61: "#8338ec"   // Ligue 1
-    };
+<div id="live-matches"></div>
+<div id="upcoming-matches"></div>
 
-    async function loadLiveMatches() {
-      const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all`;
-      const options = {
-        method: "GET",
-        headers: {
-          "x-rapidapi-key": API_KEY,
-          "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
-        }
-      };
-      const div = document.getElementById("matches");
-      div.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
+<script>
+const API_KEY = "bcb3327d3417bafd64a44c4e92b40151";
 
-      try {
-        const res = await fetch(url, options);
-        const data = await res.json();
-        const matches = data.response.filter(m => m.league.id == leagueId);
+// League colors
+const leagueColors = {
+  39: '#1E90FF',   // Premier League
+  140: '#FF0000',  // La Liga
+  135: '#008000',  // Serie A
+  78: '#FF8C00',   // Bundesliga
+  61: '#800080'    // Ligue 1
+};
 
-        if (matches.length === 0) {
-          div.innerHTML += `<p class="placeholder">No live matches right now.</p>`;
-          return;
-        }
+// Match status colors
+const statusColors = {
+  "NS": "#6c757d", "1H": "#28a745", "2H": "#28a745", "HT": "#ffc107",
+  "FT": "#dc3545", "PST": "#6c757d", "CANC": "#6c757d", "ABD": "#6c757d", "LIVE": "#28a745"
+};
 
-        matches.forEach(m => {
-          const color = leagueColors[leagueId] || '#1e90ff';
-          div.innerHTML += `
-            <div class="match-box">
-              <div class="teams">
-                <img class="team-logo" src="${m.teams.home.logo}" /> ${m.teams.home.name}
-                vs
-                <img class="team-logo" src="${m.teams.away.logo}" /> ${m.teams.away.name}
-              </div>
-              <div class="score" style="color:${color};">${m.goals.home} - ${m.goals.away}</div>
-              <div class="time">⏱ ${m.fixture.status.elapsed || 0}'</div>
-            </div>
-          `;
-        });
-      } catch (err) {
-        console.error(err);
-        div.innerHTML += `<p class="placeholder">Error loading live matches.</p>`;
-      }
+function getStatusBadge(status) {
+  const color = statusColors[status] || "#6c757d";
+  const text = {
+    "NS":"Not started","1H":"1st Half","2H":"2nd Half","HT":"Half-Time",
+    "FT":"Finished","PST":"Postponed","CANC":"Canceled","ABD":"Abandoned","LIVE":"Live"
+  }[status] || status;
+  return `<div class="status" style="background:${color}">${text}</div>`;
+}
+
+async function loadLeague(leagueId, btn) {
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  await loadLiveMatches(leagueId);
+  await loadUpcomingMatches(leagueId);
+}
+
+async function loadLiveMatches(leagueId) {
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=2024`;
+  const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
+  const liveDiv = document.getElementById("live-matches");
+  liveDiv.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
+
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    if (!data.response || data.response.length === 0) {
+      liveDiv.innerHTML += `<p class="placeholder">No live matches right now.</p>`;
+    } else {
+      data.response.forEach(m => {
+        const box = document.createElement("div");
+        box.className = "match-box";
+        const color = leagueColors[leagueId] || '#007bff';
+        const status = m.fixture.status.short === "LIVE" ? "LIVE" : m.fixture.status.short;
+        box.innerHTML = `
+          <div class="teams">
+            <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
+            <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
+          </div>
+          <div class="score" style="background:${color}">${m.goals.home} - ${m.goals.away}</div>
+          <div class="time" style="background:${color}">⏱ ${m.fixture.status.elapsed || 0}'</div>
+          ${getStatusBadge(status)}
+        `;
+        liveDiv.appendChild(box);
+      });
     }
+  } catch(err) {
+    liveDiv.innerHTML += `<p class="placeholder">Error loading live matches.</p>`;
+    console.error(err);
+  }
+}
 
-    async function loadUpcomingMatches() {
-      const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&status=NS`;
-      const options = {
-        method: "GET",
-        headers: {
-          "x-rapidapi-key": API_KEY,
-          "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
-        }
-      };
-      const div = document.getElementById("matches");
-      div.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
+async function loadUpcomingMatches(leagueId) {
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=2024&next=10`; // 10 upcoming matches
+  const options = { method: "GET", headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "api-football-v1.p.rapidapi.com" } };
+  const upDiv = document.getElementById("upcoming-matches");
+  upDiv.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
 
-      try {
-        const res = await fetch(url, options);
-        const data = await res.json();
-
-        if (!data.response || data.response.length === 0) {
-          div.innerHTML += `<p class="placeholder">No upcoming matches found.</p>`;
-          return;
-        }
-
-        data.response.slice(0, 10).forEach(m => {
-          const color = leagueColors[leagueId] || '#1e90ff';
-          const date = new Date(m.fixture.date);
-          div.innerHTML += `
-            <div class="match-box">
-              <div class="teams">
-                <img class="team-logo" src="${m.teams.home.logo}" /> ${m.teams.home.name}
-                vs
-                <img class="team-logo" src="${m.teams.away.logo}" /> ${m.teams.away.name}
-              </div>
-              <div class="time" style="color:${color};">
-                🕒 ${date.toLocaleString()}
-              </div>
-            </div>
-          `;
-        });
-      } catch (err) {
-        console.error(err);
-        div.innerHTML += `<p class="placeholder">Error loading upcoming matches.</p>`;
-      }
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    if (!data.response || data.response.length === 0) {
+      upDiv.innerHTML += `<p class="placeholder">No upcoming matches found.</p>`;
+    } else {
+      data.response.forEach(m => {
+        const date = new Date(m.fixture.date);
+        const box = document.createElement("div");
+        box.className = "match-box";
+        const color = leagueColors[leagueId] || '#007bff';
+        const status = m.fixture.status.short;
+        box.innerHTML = `
+          <div class="teams">
+            <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
+            <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
+          </div>
+          <div class="time" style="background:${color}; padding:2px 5px; border-radius:4px;">Kick-off: ${date.toLocaleString()}</div>
+          ${getStatusBadge(status)}
+        `;
+        upDiv.appendChild(box);
+      });
     }
+  } catch(err) {
+    upDiv.innerHTML += `<p class="placeholder">Error loading upcoming matches.</p>`;
+    console.error(err);
+  }
+}
 
-    function showLive() {
-      document.getElementById("liveBtn").classList.add("active");
-      document.getElementById("upcomingBtn").classList.remove("active");
-      loadLiveMatches();
-    }
+// Auto-refresh every 30s
+setInterval(() => {
+  const activeBtn = document.querySelector("nav button.active");
+  if (activeBtn) activeBtn.click();
+}, 30000);
+</script>
 
-    function showUpcoming() {
-      document.getElementById("upcomingBtn").classList.add("active");
-      document.getElementById("liveBtn").classList.remove("active");
-      loadUpcomingMatches();
-    }
-
-    // Load live matches on startup
-    loadLiveMatches();
-  </script>
 </body>
 </html>
