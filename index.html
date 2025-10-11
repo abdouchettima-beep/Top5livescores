@@ -1,4 +1,4 @@
-8<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -322,14 +322,12 @@ async function fetchJSON(url){
   return json;
 }
 
-const url = `https://v3.football.api-sports.io/fixtures?next=10&league=${leagueId}&season=${currentSeason}`;
-
-const response = await fetch(url, {
-  method: "GET",
-  headers: {
-    "x-apisports-key": API_KEY
-  }
-});
+async function loadLiveMatches(leagueId){
+  isFetching = true;
+  showSpinner();
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${currentSeason}`;
+  liveDiv.innerHTML = `<div class="section-title">🔴 Live Matches</div>`;
+  try{
     const data = await fetchJSON(url);
     if(!data.response || data.response.length === 0){
       liveDiv.innerHTML += `<p class="placeholder">No live matches right now.</p>`;
@@ -350,20 +348,12 @@ const response = await fetch(url, {
   }
 }
 
-const url = `https://v3.football.api-sports.io/fixtures?next=10&league=${leagueId}&season=${currentSeason}`;
-
-const response = await fetch(url, {
-  method: "GET",
-  headers: {
-    "x-apisports-key": API_KEY
-  }
-});
-  method: "GET",
-  headers: {
-    "x-apisports-key": API_KEY,
-    "x-rapidapi-host": "v3.football.api-sports.io"
-  }
-};
+async function loadUpcomingMatches(leagueId){
+  isFetching = true;
+  showSpinner();
+  const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10&timezone=UTC`;
+  upcomingDiv.innerHTML = `<div class="section-title">📅 Upcoming Matches</div>`;
+  try{
     const data = await fetchJSON(url);
     if(!data.response || data.response.length === 0){
       upcomingDiv.innerHTML += `<p class="placeholder">No upcoming matches found.</p>`;
