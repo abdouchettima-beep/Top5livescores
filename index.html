@@ -6,7 +6,7 @@
 <title>TOP 5 LEAGUES</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ---- Your full CSS design remains exactly as before ---- */
+/* ---- Your same design ---- */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
@@ -16,14 +16,12 @@ body{
   overflow:auto;
   -webkit-overflow-scrolling:touch;
 }
-/* splash, header, nav, cards, etc... (unchanged) */
 .splash{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(4,10,30,0.95);flex-direction:column;transition:opacity .6s ease}
 .splash.hidden{opacity:0;pointer-events:none;transform:scale(.98)}
 .splash .ball{font-size:48px;margin-bottom:10px;animation:pop 1s ease}
 .splash .title{font-size:22px;font-weight:700}
 @keyframes pop{0%{transform:translateY(8px);opacity:0}60%{transform:translateY(-6px);opacity:1}100%{transform:translateY(0)}}
 header{position:sticky;top:0;z-index:200;padding:18px 16px;background:linear-gradient(90deg,#1EA36B,#1E90FF);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.15rem}
-.header-inner{display:flex;align-items:center;gap:10px;justify-content:center}
 .controls{position:fixed;right:14px;top:14px;z-index:300;display:flex;gap:8px;align-items:center}
 .spinner{width:30px;height:30px;border-radius:50%;border:3px solid rgba(255,255,255,0.12);border-top-color:#fff;animation:spin 1s linear infinite;display:none}
 .spinner.visible{display:inline-block}
@@ -45,7 +43,7 @@ nav button.active{background:linear-gradient(90deg,#1E90FF,#00B7FF)}
 </head>
 <body>
 <div class="splash" id="splash"><div class="ball">⚽</div><div class="title">TOP 5 LEAGUES</div></div>
-<header><div class="header-inner"><div class="app-title"><div class="ball-small">⚽</div><div>TOP 5 LEAGUES</div></div></div></header>
+<header>⚽ TOP 5 LEAGUES</header>
 <div class="controls"><div class="spinner" id="topSpinner"></div><button class="theme-toggle" id="themeToggle">🌙</button></div>
 
 <main class="container" id="mainContent">
@@ -68,8 +66,7 @@ nav button.active{background:linear-gradient(90deg,#1E90FF,#00B7FF)}
 <script>
 const API_KEY = "bcb3327d3417bafd64a44c4e92b40151";
 const AUTO_REFRESH_MS = 30000;
-const today = new Date();
-let currentSeason = (today.getMonth() >= 7) ? today.getFullYear() : today.getFullYear() - 1;
+let currentSeason = new Date().getMonth() >= 7 ? new Date().getFullYear() : new Date().getFullYear() - 1;
 let currentLeagueId = 39;
 let displaying = 'live';
 let autoRefreshTimer;
@@ -84,11 +81,10 @@ function hideSpinner(){topSpinner.classList.remove('visible');}
 
 async function fetchJSON(url){
   const res = await fetch(url,{headers:{"x-rapidapi-key":API_KEY,"x-rapidapi-host":"api-football-v1.p.rapidapi.com"}});
-  const json = await res.json();
-  return json;
+  return res.json();
 }
 
-function createCard(m,leagueId){
+function createCard(m){
   const card=document.createElement('div');
   card.className='match-box';
   const date=new Date(m.fixture.date).toLocaleString();
@@ -108,7 +104,7 @@ async function loadLiveMatches(leagueId){
   if(!data.response?.length){
     liveDiv.innerHTML+="<p class='placeholder'>No live matches right now.</p>";
   }else{
-    data.response.forEach(m=>liveDiv.appendChild(createCard(m,leagueId)));
+    data.response.forEach(m=>liveDiv.appendChild(createCard(m)));
   }
   hideSpinner();
 }
@@ -116,19 +112,12 @@ async function loadLiveMatches(leagueId){
 async function loadUpcomingMatches(leagueId){
   showSpinner();
   upcomingDiv.innerHTML="<div class='section-title'>📅 Upcoming Matches</div>";
-  let url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&from=${today.toISOString().split('T')[0]}&to=${today.toISOString().split('T')[0]}`;
-  let data=await fetchJSON(url);
-
-  if(!data.response?.length){
-    // If no matches today, get next available
-    url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10`;
-    data=await fetchJSON(url);
-  }
-
+  const url=`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${currentSeason}&next=10`;
+  const data=await fetchJSON(url);
   if(!data.response?.length){
     upcomingDiv.innerHTML+="<p class='placeholder'>No upcoming matches found.</p>";
   }else{
-    data.response.forEach(m=>upcomingDiv.appendChild(createCard(m,leagueId)));
+    data.response.forEach(m=>upcomingDiv.appendChild(createCard(m)));
   }
   hideSpinner();
 }
