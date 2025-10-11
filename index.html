@@ -6,110 +6,192 @@
 <title>⚽ Live Football Scores</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  /* Reset */
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Roboto', sans-serif; background:#121212; color:#fff; }
+  /* General Reset */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: radial-gradient(circle at top, #0a0a0a 0%, #121212 100%);
+    color: #fff;
+    overflow-x: hidden;
+  }
 
   /* Header */
   header {
-    background: linear-gradient(90deg,#1e3c72,#2a5298);
-    text-align:center;
-    font-size:1.9em;
-    font-weight:700;
-    padding:18px;
+    background: linear-gradient(90deg, #1e3c72, #2a5298);
+    color: #fff;
+    text-align: center;
+    font-size: 2em;
+    font-weight: 700;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    letter-spacing: 1px;
     position: sticky;
-    top:0;
-    z-index:100;
-    box-shadow:0 4px 10px rgba(0,0,0,0.5);
+    top: 0;
+    z-index: 100;
   }
 
   /* Ad Banner */
   #admob-banner {
-    margin:15px auto;
-    width:90%;
-    max-width:500px;
-    height:60px;
-    background:#1e1e1e;
-    color:#aaa;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:12px;
-    font-weight:500;
-    box-shadow:0 4px 6px rgba(0,0,0,0.3);
+    background: #1b1b1b;
+    color: #aaa;
+    text-align: center;
+    padding: 15px;
+    margin: 15px auto;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 520px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    font-size: 0.95em;
   }
 
   /* League Buttons */
-  nav { display:flex; justify-content:center; flex-wrap:wrap; gap:6px; margin:12px 0; }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 12px 0;
+  }
   nav button {
-    flex:1 1 120px;
-    padding:12px 10px;
-    border:none;
-    border-radius:10px;
-    background:#222;
-    color:#fff;
-    font-weight:500;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    cursor:pointer;
-    transition:0.3s;
-    box-shadow:0 2px 6px rgba(0,0,0,0.5);
+    flex: 1 1 120px;
+    border: none;
+    background: #202020;
+    color: #fff;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   }
-  nav button:hover { background:#333; transform:translateY(-2px); }
-  nav button.active { background:#1e90ff; box-shadow:0 4px 12px rgba(30,144,255,0.6); }
+  nav button:hover {
+    transform: translateY(-3px);
+    background: #2c2c2c;
+  }
+  nav button.active {
+    background: linear-gradient(90deg, #1e90ff, #00bfff);
+    box-shadow: 0 4px 15px rgba(30, 144, 255, 0.6);
+  }
+  .league-logo {
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.8));
+  }
 
-  .league-logo { width:24px; height:24px; object-fit:contain; filter:drop-shadow(0 0 4px #fff); }
-
-  /* Toggle Buttons */
-  .toggle-bar { display:flex; justify-content:center; gap:10px; margin:12px 0; }
+  /* Toggle Bar */
+  .toggle-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 18px 0;
+  }
   .toggle-bar button {
-    padding:10px 18px;
-    border:none;
-    border-radius:10px;
-    background:#222;
-    color:#fff;
-    font-weight:500;
-    cursor:pointer;
-    transition:0.3s;
-    box-shadow:0 2px 6px rgba(0,0,0,0.5);
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    background: #222;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   }
-  .toggle-bar button.active { background:#28a745; box-shadow:0 4px 10px rgba(40,167,69,0.6); transform:translateY(-2px); }
+  .toggle-bar button:hover {
+    transform: translateY(-2px);
+    background: #333;
+  }
+  .toggle-bar button.active {
+    background: linear-gradient(90deg, #28a745, #3edc81);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(40,167,69,0.6);
+  }
 
-  /* Section titles */
-  .section-title { margin:18px 0 12px; font-size:1.4em; font-weight:700; text-align:left; padding-left:5%; color:#fff; }
+  /* Section Title */
+  .section-title {
+    font-size: 1.4em;
+    font-weight: 700;
+    padding-left: 5%;
+    margin: 18px 0 12px;
+  }
 
-  /* Match Box */
+  /* Match Cards */
   .match-box {
-    background: linear-gradient(145deg, #1f1f1f, #2b2b2b);
-    margin:12px auto;
-    padding:16px;
-    width:90%;
-    max-width:520px;
-    border-radius:16px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.6);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    transition:0.3s;
+    background: linear-gradient(145deg, #1e1e1e, #262626);
+    border-radius: 16px;
+    padding: 16px;
+    width: 90%;
+    max-width: 520px;
+    margin: 12px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .match-box:hover { transform:translateY(-4px); box-shadow:0 8px 16px rgba(0,0,0,0.8); }
+  .match-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+  }
 
-  .teams { display:flex; align-items:center; justify-content:center; gap:14px; font-size:1.15em; font-weight:600; flex-wrap:wrap; text-align:center; }
-  .team-logo { width:36px; height:36px; object-fit:contain; }
+  .teams {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-weight: 600;
+    font-size: 1.05em;
+    text-align: center;
+  }
+  .team-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
 
-  .score { font-size:1.3em; margin:8px 0; padding:5px 10px; border-radius:8px; font-weight:700; color:#fff; }
-  .time { font-size:1em; margin-top:4px; padding:4px 8px; border-radius:6px; font-weight:500; }
-  .status { font-size:0.95em; margin-top:6px; padding:4px 10px; border-radius:8px; font-weight:600; }
+  .score {
+    margin-top: 10px;
+    font-size: 1.3em;
+    font-weight: 700;
+    background: #1e90ff;
+    padding: 6px 14px;
+    border-radius: 10px;
+    display: inline-block;
+  }
 
-  .placeholder { color:#888; font-style:italic; margin:14px 0; font-size:1em; text-align:center; }
+  .time, .status {
+    margin-top: 8px;
+    font-size: 0.95em;
+    font-weight: 500;
+    background: #333;
+    padding: 6px 10px;
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  .placeholder {
+    text-align: center;
+    color: #999;
+    margin: 15px 0;
+    font-style: italic;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .match-box { animation: fadeIn 0.4s ease-in-out; }
 
   /* Responsive */
-  @media(max-width:480px){
-    nav button { flex:1 1 100px; padding:10px 6px; font-size:0.9em; }
-    .toggle-bar button { padding:8px 14px; font-size:0.9em; }
-    .team-logo { width:28px; height:28px; }
+  @media(max-width: 480px){
+    nav button { flex: 1 1 100px; font-size: 0.9em; padding: 10px 8px; }
+    .toggle-bar button { padding: 10px 14px; font-size: 0.9em; }
+    .team-logo { width: 26px; height: 26px; }
   }
 </style>
 </head>
@@ -120,16 +202,26 @@
 <div id="admob-banner">AdMob Banner Placeholder</div>
 
 <nav>
-  <button data-league="39" onclick="loadLeague(39,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png"> Premier League</button>
-  <button data-league="140" onclick="loadLeague(140,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png"> La Liga</button>
-  <button data-league="135" onclick="loadLeague(135,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/135.png"> Serie A</button>
-  <button data-league="78" onclick="loadLeague(78,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/78.png"> Bundesliga</button>
-  <button data-league="61" onclick="loadLeague(61,this)"><img class="league-logo" src="https://media.api-sports.io/football/leagues/61.png"> Ligue 1</button>
+  <button data-league="39" onclick="loadLeague(39,this)">
+    <img class="league-logo" src="https://media.api-sports.io/football/leagues/39.png"> Premier League
+  </button>
+  <button data-league="140" onclick="loadLeague(140,this)">
+    <img class="league-logo" src="https://media.api-sports.io/football/leagues/140.png"> La Liga
+  </button>
+  <button data-league="135" onclick="loadLeague(135,this)">
+    <img class="league-logo" src="https://media.api-sports.io/football/leagues/135.png"> Serie A
+  </button>
+  <button data-league="78" onclick="loadLeague(78,this)">
+    <img class="league-logo" src="https://media.api-sports.io/football/leagues/78.png"> Bundesliga
+  </button>
+  <button data-league="61" onclick="loadLeague(61,this)">
+    <img class="league-logo" src="https://media.api-sports.io/football/leagues/61.png"> Ligue 1
+  </button>
 </nav>
 
 <div class="toggle-bar">
-  <button id="liveBtn" class="active" onclick="showSection('live')">Live Matches</button>
-  <button id="upcomingBtn" onclick="showSection('upcoming')">Upcoming Matches</button>
+  <button id="liveBtn" class="active" onclick="showSection('live')">🔴 Live Matches</button>
+  <button id="upcomingBtn" onclick="showSection('upcoming')">📅 Upcoming Matches</button>
 </div>
 
 <div id="live-matches"></div>
@@ -166,14 +258,18 @@ async function loadLiveMatches(leagueId){
   try{
     const res=await fetch(url,options);
     const data=await res.json();
-    if(!data.response||data.response.length===0){ liveDiv.innerHTML+=`<p class="placeholder">No live matches right now.</p>`; return; }
+    if(!data.response||data.response.length===0){
+      liveDiv.innerHTML+=`<p class="placeholder">No live matches right now.</p>`;
+      return;
+    }
     data.response.forEach(m=>{
       const box=document.createElement("div"); box.className="match-box";
       const color=leagueColors[leagueId]||'#1e90ff';
       const status=m.fixture.status.short==="LIVE"?"LIVE":m.fixture.status.short;
       box.innerHTML=`
         <div class="teams">
-          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
+          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name}
+          <span style="color:#bbb;">vs</span>
           <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
         </div>
         <div class="score" style="background:${color}">${m.goals.home} - ${m.goals.away}</div>
@@ -182,7 +278,10 @@ async function loadLiveMatches(leagueId){
       `;
       liveDiv.appendChild(box);
     });
-  }catch(err){ liveDiv.innerHTML+=`<p class="placeholder">Error loading live matches.</p>`; console.error(err); }
+  }catch(err){
+    liveDiv.innerHTML+=`<p class="placeholder">Error loading live matches.</p>`;
+    console.error(err);
+  }
 }
 
 async function loadUpcomingMatches(leagueId){
@@ -193,22 +292,29 @@ async function loadUpcomingMatches(leagueId){
   try{
     const res=await fetch(url,options);
     const data=await res.json();
-    if(!data.response||data.response.length===0){ upDiv.innerHTML+=`<p class="placeholder">No upcoming matches found.</p>`; return; }
+    if(!data.response||data.response.length===0){
+      upDiv.innerHTML+=`<p class="placeholder">No upcoming matches found.</p>`;
+      return;
+    }
     data.response.forEach(m=>{
       const date=new Date(m.fixture.date);
       const box=document.createElement("div"); box.className="match-box";
       const color=leagueColors[leagueId]||'#1e90ff';
       box.innerHTML=`
         <div class="teams">
-          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name} vs 
+          <img class="team-logo" src="${m.teams.home.logo}" alt="${m.teams.home.name}"/> ${m.teams.home.name}
+          <span style="color:#bbb;">vs</span>
           <img class="team-logo" src="${m.teams.away.logo}" alt="${m.teams.away.name}"/> ${m.teams.away.name}
         </div>
-        <div class="time" style="background:${color}; padding:4px 8px; border-radius:6px;">Kick-off: ${date.toLocaleString()}</div>
+        <div class="time" style="background:${color};">Kick-off: ${date.toLocaleString()}</div>
         ${getStatusBadge(m.fixture.status.short)}
       `;
       upDiv.appendChild(box);
     });
-  }catch(err){ upDiv.innerHTML+=`<p class="placeholder">Error loading upcoming matches.</p>`; console.error(err); }
+  }catch(err){
+    upDiv.innerHTML+=`<p class="placeholder">Error loading upcoming matches.</p>`;
+    console.error(err);
+  }
 }
 
 function showSection(type){
@@ -216,8 +322,15 @@ function showSection(type){
   const upcoming=document.getElementById("upcoming-matches");
   document.getElementById("liveBtn").classList.remove("active");
   document.getElementById("upcomingBtn").classList.remove("active");
-  if(type==="live"){ live.style.display="block"; upcoming.style.display="none"; document.getElementById("liveBtn").classList.add("active"); loadLiveMatches(currentLeagueId); }
-  else{ live.style.display="none"; upcoming.style.display="block"; document.getElementById("upcomingBtn").classList.add("active"); loadUpcomingMatches(currentLeagueId); }
+  if(type==="live"){
+    live.style.display="block"; upcoming.style.display="none";
+    document.getElementById("liveBtn").classList.add("active");
+    loadLiveMatches(currentLeagueId);
+  } else {
+    live.style.display="none"; upcoming.style.display="block";
+    document.getElementById("upcomingBtn").classList.add("active");
+    loadUpcomingMatches(currentLeagueId);
+  }
 }
 
 setInterval(()=>{
@@ -227,6 +340,5 @@ setInterval(()=>{
 
 window.onload=()=>{ loadLeague(currentLeagueId,document.querySelector(`nav button[data-league="${currentLeagueId}"]`)); };
 </script>
-
 </body>
 </html>
