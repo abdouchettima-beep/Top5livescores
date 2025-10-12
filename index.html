@@ -1,79 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚽ Africa WC Qualifiers - Live & Upcoming</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Top 5 Leagues - Live & Upcoming</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; text-align: center; }
-  header { background:#222; color:white; padding:15px; font-size:1.2em; }
-  #matches { padding: 20px; }
-  .match { background:#fff; margin:10px auto; padding:15px; border-radius:8px; max-width:500px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-  .team { font-weight:bold; font-size:1.1em; }
-  .date { color:#555; margin-top:5px; font-size:0.9em; }
-  .live { border-left: 5px solid red; }
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background: linear-gradient(90deg, #1EA36B, #1E90FF);
+    padding: 15px;
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 20px;
+  }
+  .match {
+    background: #1b1b1b;
+    border-radius: 10px;
+    margin: 12px auto;
+    padding: 12px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  }
+  .match p {
+    margin: 5px 0;
+  }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+  }
+  nav button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #1E90FF;
+    color: #fff;
+    font-weight: 600;
+  }
+  nav button:hover {
+    background: #007bff;
+  }
 </style>
 </head>
 <body>
+  <header>⚽ Top 5 Leagues</header>
 
-<header>⚽ Africa WC Qualifiers - Live & Upcoming Matches</header>
-<div id="matches">Loading matches...</div>
+  <nav>
+    <button onclick="loadLeague(39)">Premier League</button>
+    <button onclick="loadLeague(140)">La Liga</button>
+    <button onclick="loadLeague(135)">Serie A</button>
+    <button onclick="loadLeague(78)">Bundesliga</button>
+    <button onclick="loadLeague(61)">Ligue 1</button>
+  </nav>
+
+  <div id="liveMatches">
+    <div class="section-title">🔴 Live Matches</div>
+  </div>
+  <div id="upcomingMatches">
+    <div class="section-title">📅 Upcoming Matches</div>
+  </div>
 
 <script>
-const apiKey = '427c7eed27f749bfa40954e947f72a19';
-const competitionCode = 'WCQAF';
+const apiKey = "bcb3327d3417bafd64a44c4e92b40151"; // 🔑 Replace with your real API-Football key
+const season = 2024;
+const proxy = "https://corsproxy.io/?"; // fixes GitHub CORS issue
 
-// Fetch live matches
-async function loadLiveMatches() {
-  const matchesDiv = document.getElementById('matches');
-  const url = `https://api.football-data.org/v4/competitions/${competitionCode}/matches`;
-
+async function fetchAPI(url) {
+  const fullUrl = proxy + url;
+  console.log("Fetching:", fullUrl);
   try {
-    const response = await fetch(url, {
-      headers: { 'X-Auth-Token': apiKey }
-    });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-    const data = await response.json();
-    const matches = data.matches;
-
-    if (!matches || matches.length === 0) {
-      matchesDiv.innerHTML = '<p>No matches found.</p>';
-      return;
-    }
-
-    matchesDiv.innerHTML = '';
-    matches.forEach(match => {
-      const home = match.homeTeam.name;
-      const away = match.awayTeam.name;
-      const date = new Date(match.utcDate).toLocaleString();
-
-      const matchDiv = document.createElement('div');
-      matchDiv.className = 'match';
-      
-      // Highlight live matches in red
-      if (match.status === 'LIVE' || match.status === 'IN_PLAY') {
-        matchDiv.classList.add('live');
+    const response = await fetch(fullUrl, {
+      headers: {
+        "X-RapidAPI-Key": apiKey,
+        "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
       }
-
-      matchDiv.innerHTML = `
-        <div class="team">${home} vs ${away}</div>
-        <div class="date">${date} ${match.status === 'LIVE' ? '🔴 Live' : ''}</div>
-      `;
-      matchesDiv.appendChild(matchDiv);
     });
-
-  } catch (error) {
-    matchesDiv.innerHTML = `<p style="color:red;">Error fetching matches: ${error.message}</p>`;
+    const data = await response.json();
+    console.log("API Response:", data);
+    return data;
+  } catch (err) {
+    console.error("Fetch error:", err);
+    return null;
   }
 }
 
-// Initial load
-loadLiveMatches();
+async function loadLeague(leagueId) {
+  document.getElementById("liveMatches").innerHTML = "<div class='section-title'>🔴 Loading live matches...</div>";
+  document.getElementById("upcomingMatches").innerHTML = "<div class='section-title'>📅 Loading upcoming matches...</div>";
 
-// Optional: auto-refresh every 60 seconds
-setInterval(loadLiveMatches, 60000);
+  const liveURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${season}`;
+  const upcomingURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${season}&next=10`;
+
+  const liveData = await fetchAPI(liveURL);
+  const upcomingData = await fetchAPI(upcomingURL);
+
+  if (liveData?.response?.length > 0) {
+    displayMatches(liveData.response, "liveMatches", "No live matches right now.");
+  } else {
+    document.getElementById("liveMatches").innerHTML = "<p>No live matches right now.</p>";
+  }
+
+  if (upcomingData?.response?.length > 0) {
+    displayMatches(upcomingData.response, "upcomingMatches", "No upcoming matches found.");
+  } else {
+    document.getElementById("upcomingMatches").innerHTML = "<p>No upcoming matches found.</p>";
+  }
+}
+
+function displayMatches(matches, containerId, emptyMsg) {
+  const container = document.getElementById(containerId);
+  if (!matches || matches.length === 0) {
+    container.innerHTML = `<p>${emptyMsg}</p>`;
+    return;
+  }
+  container.innerHTML = "";
+  matches.forEach(match => {
+    const home = match.teams.home.name;
+    const away = match.teams.away.name;
+    const homeScore = match.goals.home ?? "-";
+    const awayScore = match.goals.away ?? "-";
+    const date = new Date(match.fixture.date).toLocaleString();
+
+    container.innerHTML += `
+      <div class="match">
+        <p><strong>${home}</strong> vs <strong>${away}</strong></p>
+        <p>🕒 ${date}</p>
+        <p>🏆 ${match.league.name}</p>
+        <p>🔢 Score: ${homeScore} - ${awayScore}</p>
+      </div>
+    `;
+  });
+}
+
+// Load Premier League first
+loadLeague(39);
 </script>
-
 </body>
 </html>
