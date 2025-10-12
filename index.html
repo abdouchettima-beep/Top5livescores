@@ -56,6 +56,9 @@
   nav button:hover {
     background: #007bff;
   }
+  #toggleButtons {
+    margin: 15px 0;
+  }
 </style>
 </head>
 <body>
@@ -69,17 +72,27 @@
     <button onclick="loadLeague(61)">Ligue 1</button>
   </nav>
 
-  <div id="liveMatches">
-    <div class="section-title">🔴 Live Matches</div>
+  <!-- Toggle buttons -->
+  <div id="toggleButtons">
+    <button onclick="showMatches('live')">🔴 Live Matches</button>
+    <button onclick="showMatches('upcoming')">📅 Upcoming Matches</button>
   </div>
-  <div id="upcomingMatches">
-    <div class="section-title">📅 Upcoming Matches</div>
+
+  <div id="matchesContainer">
+    <div id="liveMatches">
+      <div class="section-title">🔴 Live Matches</div>
+    </div>
+    <div id="upcomingMatches" style="display:none">
+      <div class="section-title">📅 Upcoming Matches</div>
+    </div>
   </div>
 
 <script>
-const apiKey = "bcb3327d3417bafd64a44c4e92b40151"; // 🔑 Replace with your real API-Football key
+const apiKey = "bcb3327d3417bafd64a44c4e92b40151";
 const season = 2024;
-const proxy = "https://corsproxy.io/?"; // fixes GitHub CORS issue
+const proxy = "https://corsproxy.io/?";
+
+let currentLeagueId = 39; // default
 
 async function fetchAPI(url) {
   const fullUrl = proxy + url;
@@ -92,7 +105,6 @@ async function fetchAPI(url) {
       }
     });
     const data = await response.json();
-    console.log("API Response:", data);
     return data;
   } catch (err) {
     console.error("Fetch error:", err);
@@ -101,11 +113,19 @@ async function fetchAPI(url) {
 }
 
 async function loadLeague(leagueId) {
+  currentLeagueId = leagueId;
+
   document.getElementById("liveMatches").innerHTML = "<div class='section-title'>🔴 Loading live matches...</div>";
   document.getElementById("upcomingMatches").innerHTML = "<div class='section-title'>📅 Loading upcoming matches...</div>";
 
   const liveURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${season}`;
-  const upcomingURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${season}&next=10`;
+
+  const today = new Date().toISOString().split('T')[0];
+  const nextWeek = new Date();
+  nextWeek.setDate(nextWeek.getDate() + 7);
+  const nextWeekStr = nextWeek.toISOString().split('T')[0];
+
+  const upcomingURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${season}&from=${today}&to=${nextWeekStr}`;
 
   const liveData = await fetchAPI(liveURL);
   const upcomingData = await fetchAPI(upcomingURL);
@@ -120,6 +140,17 @@ async function loadLeague(leagueId) {
     displayMatches(upcomingData.response, "upcomingMatches", "No upcoming matches found.");
   } else {
     document.getElementById("upcomingMatches").innerHTML = "<p>No upcoming matches found.</p>";
+  }
+}
+
+// Show live or upcoming matches
+function showMatches(type) {
+  if (type === 'live') {
+    document.getElementById("liveMatches").style.display = "block";
+    document.getElementById("upcomingMatches").style.display = "none";
+  } else {
+    document.getElementById("liveMatches").style.display = "none";
+    document.getElementById("upcomingMatches").style.display = "block";
   }
 }
 
@@ -148,8 +179,8 @@ function displayMatches(matches, containerId, emptyMsg) {
   });
 }
 
-// Load Premier League first
-loadLeague(39);
+// Load default league
+loadLeague(currentLeagueId);
 </script>
 </body>
 </html>
