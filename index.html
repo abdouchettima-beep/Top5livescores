@@ -64,6 +64,7 @@
 <body>
   <header>⚽ Top 5 Leagues</header>
 
+  <!-- League selection buttons -->
   <nav>
     <button onclick="loadLeague(39)">Premier League</button>
     <button onclick="loadLeague(140)">La Liga</button>
@@ -91,12 +92,10 @@
 const apiKey = "bcb3327d3417bafd64a44c4e92b40151";
 const season = 2024;
 const proxy = "https://corsproxy.io/?";
-
 let currentLeagueId = 39; // default
 
 async function fetchAPI(url) {
   const fullUrl = proxy + url;
-  console.log("Fetching:", fullUrl);
   try {
     const response = await fetch(fullUrl, {
       headers: {
@@ -104,8 +103,7 @@ async function fetchAPI(url) {
         "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
       }
     });
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (err) {
     console.error("Fetch error:", err);
     return null;
@@ -118,42 +116,42 @@ async function loadLeague(leagueId) {
   document.getElementById("liveMatches").innerHTML = "<div class='section-title'>🔴 Loading live matches...</div>";
   document.getElementById("upcomingMatches").innerHTML = "<div class='section-title'>📅 Loading upcoming matches...</div>";
 
+  // Live matches
   const liveURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${season}`;
 
+  // Upcoming matches: next 30 days
   const today = new Date().toISOString().split('T')[0];
-  const nextWeek = new Date();
-  nextWeek.setDate(nextWeek.getDate() + 7);
-  const nextWeekStr = nextWeek.toISOString().split('T')[0];
+  const nextMonth = new Date();
+  nextMonth.setDate(nextMonth.getDate() + 30);
+  const nextMonthStr = nextMonth.toISOString().split('T')[0];
 
-  const upcomingURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${season}&from=${today}&to=${nextWeekStr}`;
+  const upcomingURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${season}&from=${today}&to=${nextMonthStr}`;
 
   const liveData = await fetchAPI(liveURL);
   const upcomingData = await fetchAPI(upcomingURL);
 
+  // Display live matches
   if (liveData?.response?.length > 0) {
     displayMatches(liveData.response, "liveMatches", "No live matches right now.");
   } else {
     document.getElementById("liveMatches").innerHTML = "<p>No live matches right now.</p>";
   }
 
+  // Display upcoming matches - next 10 only
   if (upcomingData?.response?.length > 0) {
-    displayMatches(upcomingData.response, "upcomingMatches", "No upcoming matches found.");
+    displayMatches(upcomingData.response.slice(0, 10), "upcomingMatches", "No upcoming matches found.");
   } else {
     document.getElementById("upcomingMatches").innerHTML = "<p>No upcoming matches found.</p>";
   }
 }
 
-// Show live or upcoming matches
+// Toggle live/upcoming
 function showMatches(type) {
-  if (type === 'live') {
-    document.getElementById("liveMatches").style.display = "block";
-    document.getElementById("upcomingMatches").style.display = "none";
-  } else {
-    document.getElementById("liveMatches").style.display = "none";
-    document.getElementById("upcomingMatches").style.display = "block";
-  }
+  document.getElementById("liveMatches").style.display = type === 'live' ? "block" : "none";
+  document.getElementById("upcomingMatches").style.display = type === 'upcoming' ? "block" : "none";
 }
 
+// Display matches
 function displayMatches(matches, containerId, emptyMsg) {
   const container = document.getElementById(containerId);
   if (!matches || matches.length === 0) {
