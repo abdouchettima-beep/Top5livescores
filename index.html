@@ -191,6 +191,7 @@
 const apiKey = "bcb3327d3417bafd64a44c4e92b40151";
 const season = 2024;
 const baseURL = "https://v3.football.api-sports.io";
+const corsProxy = "https://api.allorigins.win/raw?url=";
 let currentLeagueId = 39;
 
 // ============================================
@@ -200,7 +201,10 @@ async function fetchAPI(url) {
   try {
     console.log("Fetching:", url);
     
-    const response = await fetch(url, {
+    // Encode the URL for the CORS proxy
+    const proxiedURL = corsProxy + encodeURIComponent(url);
+    
+    const response = await fetch(proxiedURL, {
       method: 'GET',
       headers: {
         "x-apisports-key": apiKey
@@ -307,7 +311,14 @@ async function loadLeague(leagueId, buttonEl) {
 function showMatches(type) {
   // Update button states
   document.querySelectorAll('#toggleButtons button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  
+  // Find and activate the correct button
+  const buttons = document.querySelectorAll('#toggleButtons button');
+  if (type === 'live') {
+    buttons[0].classList.add('active');
+  } else {
+    buttons[1].classList.add('active');
+  }
   
   // Toggle visibility
   document.getElementById("liveMatches").style.display = type === 'live' ? "block" : "none";
