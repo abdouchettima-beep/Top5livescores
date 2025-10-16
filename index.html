@@ -6,6 +6,12 @@
 <title>Top 5 Leagues - Live & Upcoming</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
   body {
     font-family: 'Roboto', sans-serif;
     background: #0a0a0a;
@@ -13,18 +19,24 @@
     text-align: center;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
   }
+  
   header {
     background: linear-gradient(90deg, #1EA36B, #1E90FF);
     padding: 15px;
     font-size: 1.4rem;
     font-weight: bold;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
   }
+  
   .section-title {
     font-size: 1.2rem;
     font-weight: 700;
     margin-top: 20px;
+    padding: 10px;
   }
+  
   .match {
     background: #1b1b1b;
     border-radius: 10px;
@@ -33,17 +45,42 @@
     width: 90%;
     max-width: 480px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: transform 0.2s;
   }
+  
+  .match:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(30, 144, 255, 0.3);
+  }
+  
   .match p {
     margin: 5px 0;
   }
+  
+  .live-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #ff0000;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    margin-right: 5px;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  
   nav {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     margin: 15px 0;
+    padding: 0 10px;
   }
+  
   nav button {
     padding: 10px 16px;
     border: none;
@@ -52,30 +89,89 @@
     background: #1E90FF;
     color: #fff;
     font-weight: 600;
+    transition: all 0.3s;
   }
+  
   nav button:hover {
     background: #007bff;
+    transform: scale(1.05);
   }
+  
+  nav button.active {
+    background: #1EA36B;
+  }
+  
   #toggleButtons {
     margin: 15px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 10px;
+  }
+  
+  #toggleButtons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #333;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+  
+  #toggleButtons button:hover {
+    background: #444;
+  }
+  
+  #toggleButtons button.active {
+    background: #1E90FF;
+  }
+  
+  .error {
+    color: #ff6b6b;
+    padding: 20px;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 8px;
+    margin: 10px auto;
+    width: 90%;
+    max-width: 480px;
+  }
+  
+  .loading {
+    padding: 20px;
+    color: #aaa;
+    font-style: italic;
+  }
+  
+  .score {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #1EA36B;
+  }
+  
+  .no-matches {
+    padding: 30px;
+    color: #888;
+    font-size: 1.1rem;
   }
 </style>
 </head>
 <body>
-  <header>⚽ Top 5 Leagues</header>
+  <header>⚽ Top 5 Leagues - Live Scores</header>
 
   <!-- League selection buttons -->
-  <nav>
-    <button onclick="loadLeague(39)">Premier League</button>
-    <button onclick="loadLeague(140)">La Liga</button>
-    <button onclick="loadLeague(135)">Serie A</button>
-    <button onclick="loadLeague(78)">Bundesliga</button>
-    <button onclick="loadLeague(61)">Ligue 1</button>
+  <nav id="leagueNav">
+    <button class="active" onclick="loadLeague(39, this)">Premier League</button>
+    <button onclick="loadLeague(140, this)">La Liga</button>
+    <button onclick="loadLeague(135, this)">Serie A</button>
+    <button onclick="loadLeague(78, this)">Bundesliga</button>
+    <button onclick="loadLeague(61, this)">Ligue 1</button>
   </nav>
 
   <!-- Toggle buttons -->
   <div id="toggleButtons">
-    <button onclick="showMatches('live')">🔴 Live Matches</button>
+    <button class="active" onclick="showMatches('live')">🔴 Live Matches</button>
     <button onclick="showMatches('upcoming')">📅 Upcoming Matches</button>
   </div>
 
@@ -89,96 +185,200 @@
   </div>
 
 <script>
+// ============================================
+// CONFIGURATION
+// ============================================
 const apiKey = "bcb3327d3417bafd64a44c4e92b40151";
 const season = 2024;
-const proxy = "https://corsproxy.io/?";
-let currentLeagueId = 39; // default
+const baseURL = "https://v3.football.api-sports.io";
+let currentLeagueId = 39;
 
+// ============================================
+// API FUNCTIONS
+// ============================================
 async function fetchAPI(url) {
-  const fullUrl = proxy + url;
   try {
-    const response = await fetch(fullUrl, {
+    console.log("Fetching:", url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
       headers: {
-        "X-RapidAPI-Key": apiKey,
-        "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
+        "x-apisports-key": apiKey
       }
     });
-    return await response.json();
+    
+    if (!response.ok) {
+      console.error("HTTP Error:", response.status, response.statusText);
+      return null;
+    }
+    
+    const data = await response.json();
+    console.log("API Response:", data);
+    
+    // Check for API errors
+    if (data.errors && Object.keys(data.errors).length > 0) {
+      console.error("API Errors:", data.errors);
+    }
+    
+    return data;
   } catch (err) {
     console.error("Fetch error:", err);
     return null;
   }
 }
 
-async function loadLeague(leagueId) {
+// ============================================
+// LOAD LEAGUE DATA
+// ============================================
+async function loadLeague(leagueId, buttonEl) {
   currentLeagueId = leagueId;
+  
+  // Update active button state
+  document.querySelectorAll('#leagueNav button').forEach(btn => btn.classList.remove('active'));
+  if (buttonEl) buttonEl.classList.add('active');
 
-  document.getElementById("liveMatches").innerHTML = "<div class='section-title'>🔴 Loading live matches...</div>";
-  document.getElementById("upcomingMatches").innerHTML = "<div class='section-title'>📅 Loading upcoming matches...</div>";
+  // Show loading states
+  document.getElementById("liveMatches").innerHTML = `
+    <div class='section-title'>🔴 Live Matches</div>
+    <div class='loading'>Loading live matches...</div>
+  `;
+  
+  document.getElementById("upcomingMatches").innerHTML = `
+    <div class='section-title'>📅 Upcoming Matches</div>
+    <div class='loading'>Loading upcoming matches...</div>
+  `;
 
-  // Live matches
-  const liveURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all&league=${leagueId}&season=${season}`;
+  // ===== FETCH LIVE MATCHES =====
+  const liveURL = `${baseURL}/fixtures?live=all&league=${leagueId}&season=${season}`;
 
-  // Upcoming matches: next 30 days
-  const today = new Date().toISOString().split('T')[0];
+  // ===== FETCH UPCOMING MATCHES =====
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  
   const nextMonth = new Date();
   nextMonth.setDate(nextMonth.getDate() + 30);
   const nextMonthStr = nextMonth.toISOString().split('T')[0];
 
-  const upcomingURL = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${leagueId}&season=${season}&from=${today}&to=${nextMonthStr}`;
+  const upcomingURL = `${baseURL}/fixtures?league=${leagueId}&season=${season}&from=${todayStr}&to=${nextMonthStr}&status=NS`;
 
-  const liveData = await fetchAPI(liveURL);
-  const upcomingData = await fetchAPI(upcomingURL);
+  // Fetch both APIs
+  const [liveData, upcomingData] = await Promise.all([
+    fetchAPI(liveURL),
+    fetchAPI(upcomingURL)
+  ]);
 
-  // Display live matches
-  if (liveData?.response?.length > 0) {
-    displayMatches(liveData.response, "liveMatches", "No live matches right now.");
+  // ===== DISPLAY LIVE MATCHES =====
+  const liveContainer = document.getElementById("liveMatches");
+  liveContainer.innerHTML = "<div class='section-title'>🔴 Live Matches</div>";
+  
+  if (liveData?.errors && Object.keys(liveData.errors).length > 0) {
+    liveContainer.innerHTML += `<div class='error'>❌ API Error: ${JSON.stringify(liveData.errors)}</div>`;
+  } else if (liveData?.response && liveData.response.length > 0) {
+    displayMatches(liveData.response, "liveMatches", true);
   } else {
-    document.getElementById("liveMatches").innerHTML = "<p>No live matches right now.</p>";
+    liveContainer.innerHTML += "<div class='no-matches'>No live matches at the moment</div>";
   }
 
-  // Display upcoming matches - next 10 only
-  if (upcomingData?.response?.length > 0) {
-    displayMatches(upcomingData.response.slice(0, 10), "upcomingMatches", "No upcoming matches found.");
+  // ===== DISPLAY UPCOMING MATCHES =====
+  const upcomingContainer = document.getElementById("upcomingMatches");
+  upcomingContainer.innerHTML = "<div class='section-title'>📅 Upcoming Matches</div>";
+  
+  if (upcomingData?.errors && Object.keys(upcomingData.errors).length > 0) {
+    upcomingContainer.innerHTML += `<div class='error'>❌ API Error: ${JSON.stringify(upcomingData.errors)}</div>`;
+  } else if (upcomingData?.response && upcomingData.response.length > 0) {
+    // Filter only upcoming matches
+    const upcoming = upcomingData.response.filter(m => 
+      m.fixture.status.short === 'NS' || m.fixture.status.short === 'TBD'
+    );
+    
+    if (upcoming.length > 0) {
+      displayMatches(upcoming.slice(0, 15), "upcomingMatches", false);
+    } else {
+      upcomingContainer.innerHTML += "<div class='no-matches'>No upcoming matches scheduled</div>";
+    }
   } else {
-    document.getElementById("upcomingMatches").innerHTML = "<p>No upcoming matches found.</p>";
+    upcomingContainer.innerHTML += "<div class='no-matches'>No upcoming matches found</div>";
   }
 }
 
-// Toggle live/upcoming
+// ============================================
+// TOGGLE BETWEEN LIVE AND UPCOMING
+// ============================================
 function showMatches(type) {
+  // Update button states
+  document.querySelectorAll('#toggleButtons button').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Toggle visibility
   document.getElementById("liveMatches").style.display = type === 'live' ? "block" : "none";
   document.getElementById("upcomingMatches").style.display = type === 'upcoming' ? "block" : "none";
 }
 
-// Display matches
-function displayMatches(matches, containerId, emptyMsg) {
+// ============================================
+// DISPLAY MATCHES
+// ============================================
+function displayMatches(matches, containerId, isLive) {
   const container = document.getElementById(containerId);
+  
   if (!matches || matches.length === 0) {
-    container.innerHTML = `<p>${emptyMsg}</p>`;
+    container.innerHTML += `<div class='no-matches'>${isLive ? 'No live matches right now' : 'No upcoming matches found'}</div>`;
     return;
   }
-  container.innerHTML = "";
+  
   matches.forEach(match => {
     const home = match.teams.home.name;
     const away = match.teams.away.name;
     const homeScore = match.goals.home ?? "-";
     const awayScore = match.goals.away ?? "-";
-    const date = new Date(match.fixture.date).toLocaleString();
+    const date = new Date(match.fixture.date);
+    const formattedDate = date.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    const status = match.fixture.status.long;
+    const elapsed = match.fixture.status.elapsed;
+    const round = match.league.round || '';
 
-    container.innerHTML += `
+    let matchHTML = `
       <div class="match">
+        <p style="font-size: 0.9rem; color: #888;">${round}</p>
         <p><strong>${home}</strong> vs <strong>${away}</strong></p>
-        <p>🕒 ${date}</p>
-        <p>🏆 ${match.league.name}</p>
-        <p>🔢 Score: ${homeScore} - ${awayScore}</p>
-      </div>
+        <p>🕒 ${formattedDate}</p>
     `;
+
+    // Show live status or match status
+    if (isLive && elapsed) {
+      matchHTML += `<p><span class="live-indicator"></span><strong style="color: #ff0000;">LIVE - ${elapsed}'</strong></p>`;
+      matchHTML += `<p class="score">${homeScore} - ${awayScore}</p>`;
+    } else if (isLive) {
+      matchHTML += `<p><span class="live-indicator"></span><strong style="color: #ff0000;">LIVE</strong></p>`;
+      matchHTML += `<p class="score">${homeScore} - ${awayScore}</p>`;
+    } else {
+      matchHTML += `<p>📊 ${status}</p>`;
+    }
+
+    matchHTML += `</div>`;
+    
+    container.innerHTML += matchHTML;
   });
 }
 
-// Load default league
+// ============================================
+// INITIALIZE
+// ============================================
+console.log("Initializing app with API Key:", apiKey);
 loadLeague(currentLeagueId);
+
+// Auto-refresh live matches every 30 seconds
+setInterval(() => {
+  if (document.getElementById("liveMatches").style.display !== "none") {
+    console.log("Auto-refreshing live matches...");
+    loadLeague(currentLeagueId);
+  }
+}, 30000);
 </script>
 </body>
 </html>
