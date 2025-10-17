@@ -191,7 +191,7 @@
 const apiKey = "bcb3327d3417bafd64a44c4e92b40151";
 const season = 2024;
 const baseURL = "https://v3.football.api-sports.io";
-const corsProxy = "https://api.allorigins.win/raw?url=";
+const corsProxy = "https://corsproxy.io/?";
 let currentLeagueId = 39;
 
 // ============================================
@@ -201,23 +201,27 @@ async function fetchAPI(url) {
   try {
     console.log("Fetching:", url);
     
-    // Encode the URL for the CORS proxy
-    const proxiedURL = corsProxy + encodeURIComponent(url);
+    // Build the full URL with API key header embedded
+    const fullURL = `${corsProxy}${encodeURIComponent(url)}`;
     
-    const response = await fetch(proxiedURL, {
+    const response = await fetch(fullURL, {
       method: 'GET',
       headers: {
-        "x-apisports-key": apiKey
+        "x-rapidapi-key": apiKey,
+        "x-rapidapi-host": "v3.football.api-sports.io"
       }
     });
     
     if (!response.ok) {
       console.error("HTTP Error:", response.status, response.statusText);
+      const errorText = await response.text();
+      console.error("Error details:", errorText);
       return null;
     }
     
     const data = await response.json();
     console.log("API Response:", data);
+    console.log("Response length:", data?.response?.length);
     
     // Check for API errors
     if (data.errors && Object.keys(data.errors).length > 0) {
@@ -227,6 +231,7 @@ async function fetchAPI(url) {
     return data;
   } catch (err) {
     console.error("Fetch error:", err);
+    console.error("Error details:", err.message);
     return null;
   }
 }
@@ -287,21 +292,30 @@ async function loadLeague(leagueId, buttonEl) {
   const upcomingContainer = document.getElementById("upcomingMatches");
   upcomingContainer.innerHTML = "<div class='section-title'>📅 Upcoming Matches</div>";
   
-  if (upcomingData?.errors && Object.keys(upcomingData.errors).length > 0) {
+  console.log("Upcoming data check:", upcomingData);
+  console.log("Has response?", upcomingData?.response);
+  console.log("Response length:", upcomingData?.response?.length);
+  
+  if (!upcomingData) {
+    upcomingContainer.innerHTML += "<div class='error'>❌ Failed to fetch upcoming matches</div>";
+  } else if (upcomingData?.errors && Object.keys(upcomingData.errors).length > 0) {
     upcomingContainer.innerHTML += `<div class='error'>❌ API Error: ${JSON.stringify(upcomingData.errors)}</div>`;
   } else if (upcomingData?.response && upcomingData.response.length > 0) {
+    console.log("Processing", upcomingData.response.length, "matches");
     // Filter only upcoming matches
     const upcoming = upcomingData.response.filter(m => 
       m.fixture.status.short === 'NS' || m.fixture.status.short === 'TBD'
     );
     
+    console.log("Filtered to", upcoming.length, "upcoming matches");
+    
     if (upcoming.length > 0) {
       displayMatches(upcoming.slice(0, 15), "upcomingMatches", false);
     } else {
-      upcomingContainer.innerHTML += "<div class='no-matches'>No upcoming matches scheduled</div>";
+      upcomingContainer.innerHTML += "<div class='no-matches'>No upcoming matches scheduled (all filtered out)</div>";
     }
   } else {
-    upcomingContainer.innerHTML += "<div class='no-matches'>No upcoming matches found</div>";
+    upcomingContainer.innerHTML += `<div class='no-matches'>No upcoming matches found. API returned: ${JSON.stringify(upcomingData)}</div>`;
   }
 }
 
