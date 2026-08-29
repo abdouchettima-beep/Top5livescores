@@ -1,769 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="utf-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1">
-
-<title>LiveScore Football</title>
-
-<link
-href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Top 5 Leagues - Live Scores</title>
 
 <style>
-
-/* =====================================================
-   RESET
-===================================================== */
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-
-/* =====================================================
-   BODY
-===================================================== */
-
 body {
-
-  font-family: 'Roboto', Arial, sans-serif;
-
+  font-family: Arial, sans-serif;
   background: #080808;
-
-  color: #ffffff;
-
-  min-height: 100vh;
-
+  color: #fff;
   text-align: center;
-
+  min-height: 100vh;
 }
-
-
-/* =====================================================
-   HEADER
-===================================================== */
 
 header {
-
-  background:
-  linear-gradient(90deg, #1ea36b, #1e90ff);
-
+  background: linear-gradient(90deg,#1ea36b,#1e90ff);
   padding: 17px 10px;
-
-  font-size: 1.45rem;
-
-  font-weight: 700;
-
-  box-shadow:
-  0 3px 12px rgba(0,0,0,0.45);
-
+  font-size: 1.4rem;
+  font-weight: bold;
 }
-
-
-/* =====================================================
-   AD PLACEHOLDER
-===================================================== */
 
 .ad-container {
-
-  width: 94%;
-
+  width: 92%;
   max-width: 480px;
-
   height: 60px;
-
   margin: 12px auto;
-
   background: #222;
-
   border-radius: 10px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   color: #888;
-
   font-size: 13px;
-
 }
-
-
-/* =====================================================
-   LEAGUE NAVIGATION
-===================================================== */
 
 #leagueNav {
-
   display: flex;
-
   overflow-x: auto;
-
   gap: 8px;
-
   padding: 10px;
-
   background: #111;
-
-  scrollbar-width: none;
-
 }
-
-#leagueNav::-webkit-scrollbar {
-  display: none;
-}
-
 
 #leagueNav button {
-
   flex: 0 0 auto;
-
   padding: 10px 14px;
-
   border: none;
-
   border-radius: 20px;
-
   background: #333;
-
   color: white;
-
-  font-weight: 600;
-
+  font-weight: bold;
   white-space: nowrap;
-
-  cursor: pointer;
-
 }
-
 
 #leagueNav button.active {
-
   background: #1ea36b;
-
 }
-
-
-/* =====================================================
-   LIVE / UPCOMING BUTTONS
-===================================================== */
 
 #toggleButtons {
-
   display: flex;
-
   justify-content: center;
-
   gap: 8px;
-
-  padding: 15px 10px;
-
+  padding: 15px 10px 10px;
 }
 
-
-#toggleButtons button {
-
+#toggleButtons button,
+#refreshButton {
   border: none;
-
   border-radius: 20px;
-
   padding: 10px 17px;
-
   background: #333;
-
   color: white;
-
-  font-weight: 600;
-
-  cursor: pointer;
-
+  font-weight: bold;
 }
-
 
 #toggleButtons button.active {
-
   background: #1e90ff;
-
 }
-
-
-/* =====================================================
-   SECTION TITLE
-===================================================== */
-
-.section-title {
-
-  font-size: 1.15rem;
-
-  font-weight: 700;
-
-  margin: 12px 0;
-
-  padding: 8px;
-
-}
-
-
-/* =====================================================
-   MATCH CARD
-===================================================== */
-
-.match {
-
-  background: #181818;
-
-  border-radius: 12px;
-
-  margin: 12px auto;
-
-  padding: 15px;
-
-  width: 92%;
-
-  max-width: 480px;
-
-  box-shadow:
-  0 4px 12px rgba(0,0,0,0.45);
-
-}
-
-
-/* =====================================================
-   LEAGUE NAME
-===================================================== */
-
-.league-name {
-
-  color: #888;
-
-  font-size: 12px;
-
-  margin-bottom: 10px;
-
-}
-
-
-/* =====================================================
-   ROUND
-===================================================== */
-
-.round {
-
-  color: #777;
-
-  font-size: 12px;
-
-  margin-bottom: 8px;
-
-}
-
-
-/* =====================================================
-   TEAMS
-===================================================== */
-
-.teams {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 8px;
-
-}
-
-
-.team {
-
-  width: 38%;
-
-  font-weight: 600;
-
-  font-size: 14px;
-
-}
-
-
-.team-logo {
-
-  width: 42px;
-
-  height: 42px;
-
-  object-fit: contain;
-
-  display: block;
-
-  margin: 0 auto 7px;
-
-}
-
-
-/* =====================================================
-   SCORE
-===================================================== */
-
-.score-area {
-
-  width: 24%;
-
-}
-
-
-.score {
-
-  font-size: 21px;
-
-  font-weight: 700;
-
-  color: #1ea36b;
-
-}
-
-
-/* =====================================================
-   STATUS
-===================================================== */
-
-.status {
-
-  display: inline-block;
-
-  margin-top: 7px;
-
-  padding: 4px 7px;
-
-  border-radius: 5px;
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-}
-
-
-.status-live {
-
-  background: #dc2626;
-
-  color: white;
-
-}
-
-
-.status-half {
-
-  background: #f59e0b;
-
-  color: black;
-
-}
-
-
-.status-finished {
-
-  background: #555;
-
-  color: white;
-
-}
-
-
-.status-upcoming {
-
-  background: #1e90ff;
-
-  color: white;
-
-}
-
-
-.status-postponed {
-
-  background: #9333ea;
-
-  color: white;
-
-}
-
-
-/* =====================================================
-   LIVE INDICATOR
-===================================================== */
-
-.live-indicator {
-
-  display: inline-block;
-
-  width: 9px;
-
-  height: 9px;
-
-  background: #ff0000;
-
-  border-radius: 50%;
-
-  margin-right: 5px;
-
-  animation: pulse 1.4s infinite;
-
-}
-
-
-@keyframes pulse {
-
-  0%,100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.25;
-  }
-
-}
-
-
-/* =====================================================
-   DATE / TIME
-===================================================== */
-
-.match-time {
-
-  margin-top: 10px;
-
-  color: #aaa;
-
-  font-size: 13px;
-
-}
-
-
-/* =====================================================
-   LOADING
-===================================================== */
-
-.loading {
-
-  padding: 25px;
-
-  color: #aaa;
-
-  font-style: italic;
-
-}
-
-
-/* =====================================================
-   NO MATCHES
-===================================================== */
-
-.no-matches {
-
-  padding: 30px;
-
-  color: #888;
-
-}
-
-
-/* =====================================================
-   ERROR
-===================================================== */
-
-.error {
-
-  width: 92%;
-
-  max-width: 480px;
-
-  margin: 15px auto;
-
-  padding: 15px;
-
-  background: rgba(255,70,70,0.12);
-
-  border: 1px solid #a33;
-
-  border-radius: 10px;
-
-  color: #ff7777;
-
-  font-size: 14px;
-
-}
-
-
-/* =====================================================
-   REFRESH BUTTON
-===================================================== */
 
 #refreshButton {
-
-  border: none;
-
-  border-radius: 20px;
-
-  padding: 9px 16px;
-
-  margin-bottom: 10px;
-
+  margin: 5px 0 12px;
   background: #444;
-
-  color: white;
-
-  font-weight: 600;
-
 }
 
+.section-title {
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin: 12px 0;
+}
 
-#refreshButton:active {
+.match {
+  background: #181818;
+  border-radius: 12px;
+  margin: 12px auto;
+  padding: 15px;
+  width: 92%;
+  max-width: 480px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.45);
+}
 
+.league-name {
+  color: #888;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.round {
+  color: #777;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.team {
+  width: 38%;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.team-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 7px;
+}
+
+.score-area {
+  width: 24%;
+}
+
+.score {
+  font-size: 21px;
+  font-weight: bold;
+  color: #1ea36b;
+}
+
+.status {
+  display: inline-block;
+  margin-top: 7px;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.live {
+  background: #dc2626;
+}
+
+.halftime {
+  background: #f59e0b;
+  color: #000;
+}
+
+.finished {
+  background: #555;
+}
+
+.upcoming {
   background: #1e90ff;
-
 }
 
+.postponed {
+  background: #9333ea;
+}
 
-/* =====================================================
-   FOOTER
-===================================================== */
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: red;
+  border-radius: 50%;
+  margin-right: 4px;
+  animation: pulse 1.3s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: .25; }
+}
+
+.match-time {
+  margin-top: 10px;
+  color: #aaa;
+  font-size: 13px;
+}
+
+.loading {
+  padding: 25px;
+  color: #aaa;
+}
+
+.no-matches {
+  padding: 30px;
+  color: #888;
+}
+
+.error {
+  width: 92%;
+  max-width: 480px;
+  margin: 15px auto;
+  padding: 15px;
+  background: rgba(255,70,70,.12);
+  border: 1px solid #a33;
+  border-radius: 10px;
+  color: #ff7777;
+  font-size: 14px;
+}
 
 footer {
-
   color: #666;
-
   font-size: 11px;
-
-  padding: 25px 10px;
-
+  padding: 25px;
 }
-
 </style>
-
 </head>
-
 
 <body>
 
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
 <header>
-
-⚽ LiveScore Football
-
+⚽ Top 5 Leagues - Live Scores
 </header>
 
-
-<!-- =====================================================
-     ADMOB PLACEHOLDER
-===================================================== -->
-
 <div class="ad-container">
-
 AdMob Banner
-
 </div>
-
-
-<!-- =====================================================
-     LEAGUES
-===================================================== -->
 
 <nav id="leagueNav">
 
-
-<button
-class="active"
-onclick="loadLeague(39,this)">
-
+<button class="active" onclick="loadLeague(39,this)">
 🏴 Premier League
-
 </button>
 
-
-<button
-onclick="loadLeague(140,this)">
-
+<button onclick="loadLeague(140,this)">
 🇪🇸 La Liga
-
 </button>
 
-
-<button
-onclick="loadLeague(135,this)">
-
+<button onclick="loadLeague(135,this)">
 🇮🇹 Serie A
-
 </button>
 
-
-<button
-onclick="loadLeague(78,this)">
-
+<button onclick="loadLeague(78,this)">
 🇩🇪 Bundesliga
-
 </button>
 
-
-<button
-onclick="loadLeague(61,this)">
-
+<button onclick="loadLeague(61,this)">
 🇫🇷 Ligue 1
-
 </button>
 
-
-<button
-onclick="loadLeague(2,this)">
-
+<button onclick="loadLeague(2,this)">
 🏆 Champions League
-
 </button>
-
 
 </nav>
 
-
-<!-- =====================================================
-     TOGGLE
-===================================================== -->
-
 <div id="toggleButtons">
 
-
-<button
-class="active"
-onclick="showMatches('live')">
-
-🔴 Live
-
+<button class="active" onclick="showMatches('live')">
+🔴 Live Matches
 </button>
 
-
-<button
-onclick="showMatches('upcoming')">
-
-📅 Upcoming
-
+<button onclick="showMatches('upcoming')">
+📅 Upcoming Matches
 </button>
-
 
 </div>
 
-
-<!-- =====================================================
-     REFRESH
-===================================================== -->
-
-<button
-id="refreshButton"
-onclick="manualRefresh()">
-
+<button id="refreshButton" onclick="refreshCurrentView()">
 🔄 Refresh
-
 </button>
-
-
-<!-- =====================================================
-     MATCH CONTAINERS
-===================================================== -->
-
-<div id="matchesContainer">
-
 
 <div id="liveMatches">
 
 <div class="section-title">
-
 🔴 Live Matches
-
 </div>
 
 </div>
 
-
-<div
-id="upcomingMatches"
-style="display:none">
+<div id="upcomingMatches" style="display:none">
 
 <div class="section-title">
-
 📅 Upcoming Matches
-
 </div>
 
 </div>
-
-
-</div>
-
 
 <footer>
-
 LiveScore Football
-
 </footer>
 
-
 <script>
-
 
 /* =====================================================
    API CONFIGURATION
 ===================================================== */
 
 /*
-   IMPORTANT:
+   PASTE YOUR NEW API KEY BETWEEN THE QUOTES.
 
-   Replace YOUR_API_KEY_HERE with your NEW API key
-   ONLY when privately testing.
+   Example:
 
-   Do NOT publish the key publicly on GitHub.
+   const apiKey = "5fcbf614d2e2a8737aaf0dc8758f7717";
+
+   DO NOT SEND YOUR KEY TO ANYONE.
 */
 
-const apiKey = "YOUR_API_KEY_HERE";
-
-
-/*
-   Official direct API-Football endpoint.
-*/
+const apiKey = "PASTE_YOUR_NEW_API_KEY_HERE";
 
 const baseURL =
 "https://v3.football.api-sports.io";
 
-
 /*
-   Current selected league.
+   TEMPORARY CORS PROXY
+
+   This is being used only so we can test
+   the GitHub Pages version from your phone.
+
+   We will remove this later and secure
+   the API key properly.
 */
+
+const corsProxy =
+"https://corsproxy.io/?";
 
 let currentLeagueId = 39;
 
-
-/*
-   Current screen.
-*/
-
 let currentView = "live";
 
-
 /*
-   Current season.
-
-   API-Football represents the 2026/27 season
-   as season=2026.
+   2026 = 2026/27 season.
 */
 
 const season = 2026;
@@ -791,66 +371,68 @@ const leagueNames = {
 
 
 /* =====================================================
-   API REQUEST FUNCTION
+   API REQUEST
 ===================================================== */
 
 async function fetchAPI(url) {
 
   try {
 
-    console.log("Request:", url);
+    console.log("Requesting:", url);
 
+    const proxyURL =
+      corsProxy +
+      encodeURIComponent(url);
 
-    const response = await fetch(url, {
+    const response = await fetch(
+      proxyURL,
+      {
+        method: "GET",
 
-      method: "GET",
+        headers: {
 
-      headers: {
+          "x-apisports-key": apiKey,
 
-        "x-apisports-key": apiKey,
+          "Accept": "application/json"
 
-        "Accept": "application/json"
-
+        }
       }
+    );
 
-    });
+    const data =
+      await response.json();
 
-
-    const data = await response.json();
-
-
-    console.log("API response:", data);
-
+    console.log(
+      "API response:",
+      data
+    );
 
     if (!response.ok) {
-
-      console.error(
-        "HTTP error:",
-        response.status
-      );
 
       return {
 
         errors: {
+
           http:
-          "HTTP " + response.status
+          "HTTP " +
+          response.status
+
         }
 
       };
 
     }
 
-
     return data;
 
+  }
 
-  } catch (error) {
+  catch(error) {
 
     console.error(
-      "Network error:",
+      "Fetch error:",
       error
     );
-
 
     return {
 
@@ -869,24 +451,19 @@ async function fetchAPI(url) {
 
 
 /* =====================================================
-   CHECK API KEY
+   API KEY CHECK
 ===================================================== */
 
-function checkApiKey() {
+function validKey() {
 
-  if (
+  return (
 
-    !apiKey ||
+    apiKey &&
 
-    apiKey === "5fcbf614d2e2a8737aaf0dc8758f7717"
+    apiKey !==
+    "5fcbf614d2e2a8737aaf0dc8758f7717"
 
-  ) {
-
-    return false;
-
-  }
-
-  return true;
+  );
 
 }
 
@@ -897,98 +474,47 @@ function checkApiKey() {
 
 async function loadLeague(
   leagueId,
-  buttonEl
+  button
 ) {
-
 
   currentLeagueId =
     leagueId;
 
-
-  /*
-     Active button.
-  */
-
   document
-    .querySelectorAll("#leagueNav button")
+    .querySelectorAll(
+      "#leagueNav button"
+    )
     .forEach(btn => {
 
-      btn.classList.remove("active");
+      btn.classList.remove(
+        "active"
+      );
 
     });
 
+  if (button) {
 
-  if (buttonEl) {
-
-    buttonEl.classList.add("active");
+    button.classList.add(
+      "active"
+    );
 
   }
 
+  if (!validKey()) {
 
-  /*
-     Clear previous results.
-  */
-
-  document.getElementById(
-    "liveMatches"
-  ).innerHTML = `
-
-    <div class="section-title">
-
-      🔴 Live Matches
-
-    </div>
-
-    <div class="loading">
-
-      Loading live matches...
-
-    </div>
-
-  `;
-
-
-  document.getElementById(
-    "upcomingMatches"
-  ).innerHTML = `
-
-    <div class="section-title">
-
-      📅 Upcoming Matches
-
-    </div>
-
-    <div class="loading">
-
-      Loading upcoming matches...
-
-    </div>
-
-  `;
-
-
-  if (!checkApiKey()) {
-
-    showAPIKeyMessage();
+    showKeyError();
 
     return;
 
   }
 
-
-  /*
-     Load the currently selected view.
-
-     We don't request both live and upcoming
-     every time because the free plan has
-     a 100 request/day limit.
-  */
-
   if (currentView === "live") {
 
     await loadLiveMatches();
 
-  } else {
+  }
+
+  else {
 
     await loadUpcomingMatches();
 
@@ -1003,71 +529,42 @@ async function loadLeague(
 
 async function loadLiveMatches() {
 
-
   const container =
     document.getElementById(
       "liveMatches"
     );
 
-
   container.innerHTML = `
 
     <div class="section-title">
-
       🔴 Live Matches
-
     </div>
 
     <div class="loading">
-
-      Checking live matches...
-
+      Loading live matches...
     </div>
 
   `;
 
-
-  /*
-     Request only the selected league.
-
-     This is much more efficient than
-     downloading all global live matches.
-  */
-
   const url =
-
     `${baseURL}/fixtures` +
-
     `?live=all` +
-
     `&league=${currentLeagueId}`;
-
 
   const data =
     await fetchAPI(url);
 
-
   container.innerHTML = `
 
     <div class="section-title">
-
       🔴 Live Matches
-
     </div>
 
   `;
 
-
-  /*
-     API error.
-  */
-
   if (
-
     data.errors &&
-
-    Object.keys(data.errors).length > 0
-
+    Object.keys(data.errors).length
   ) {
 
     showAPIError(
@@ -1079,27 +576,16 @@ async function loadLiveMatches() {
 
   }
 
-
   const matches =
     data.response || [];
 
-
-  /*
-     No live games.
-  */
-
-  if (matches.length === 0) {
+  if (!matches.length) {
 
     container.innerHTML += `
 
       <div class="no-matches">
 
         No live matches right now.
-
-        <br><br>
-
-        Check Upcoming Matches
-        for scheduled games.
 
       </div>
 
@@ -1109,15 +595,10 @@ async function loadLiveMatches() {
 
   }
 
-
-  /*
-     Display games.
-  */
-
   matches.forEach(match => {
 
     container.innerHTML +=
-      createMatchCard(
+      createMatch(
         match,
         true
       );
@@ -1133,100 +614,60 @@ async function loadLiveMatches() {
 
 async function loadUpcomingMatches() {
 
-
   const container =
     document.getElementById(
       "upcomingMatches"
     );
 
-
   container.innerHTML = `
 
     <div class="section-title">
-
       📅 Upcoming Matches
-
     </div>
 
     <div class="loading">
-
       Loading upcoming matches...
-
     </div>
 
   `;
-
-
-  /*
-     Get today's date.
-  */
 
   const today =
     new Date();
 
-
-  const todayString =
+  const from =
     formatDate(today);
 
-
-  /*
-     Get matches for the next 14 days.
-
-     This is more efficient than downloading
-     an entire season.
-  */
-
-  const endDate =
+  const end =
     new Date();
 
-
-  endDate.setDate(
-    endDate.getDate() + 14
+  end.setDate(
+    end.getDate() + 14
   );
 
-
-  const endDateString =
-    formatDate(endDate);
-
+  const to =
+    formatDate(end);
 
   const url =
-
     `${baseURL}/fixtures` +
-
     `?league=${currentLeagueId}` +
-
     `&season=${season}` +
-
-    `&from=${todayString}` +
-
-    `&to=${endDateString}`;
-
+    `&from=${from}` +
+    `&to=${to}`;
 
   const data =
     await fetchAPI(url);
 
-
   container.innerHTML = `
 
     <div class="section-title">
-
       📅 Upcoming Matches
-
     </div>
 
   `;
 
-
-  /*
-     API error.
-  */
-
   if (
-
     data.errors &&
-
-    Object.keys(data.errors).length > 0
-
+    Object.keys(data.errors).length
   ) {
 
     showAPIError(
@@ -1238,17 +679,8 @@ async function loadUpcomingMatches() {
 
   }
 
-
   let matches =
     data.response || [];
-
-
-  /*
-     Only show matches that have not started.
-
-     NS = Not Started
-     TBD = To Be Determined
-  */
 
   matches =
     matches.filter(match => {
@@ -1257,56 +689,33 @@ async function loadUpcomingMatches() {
         match.fixture.status.short;
 
       return (
-
         status === "NS" ||
-
         status === "TBD"
-
       );
 
     });
 
-
-  /*
-     Sort by kickoff time.
-  */
-
   matches.sort((a,b) => {
 
-    return (
-
-      new Date(
-        a.fixture.date
-      ) -
-
-      new Date(
-        b.fixture.date
-      )
-
+    return new Date(
+      a.fixture.date
+    ) -
+    new Date(
+      b.fixture.date
     );
 
   });
 
-
-  /*
-     Limit display.
-
-     This prevents an unnecessarily
-     large page.
-  */
-
   matches =
-    matches.slice(0, 20);
+    matches.slice(0,20);
 
-
-  if (matches.length === 0) {
+  if (!matches.length) {
 
     container.innerHTML += `
 
       <div class="no-matches">
 
-        No upcoming matches found
-        for this competition.
+        No upcoming matches found.
 
       </div>
 
@@ -1316,11 +725,10 @@ async function loadUpcomingMatches() {
 
   }
 
-
   matches.forEach(match => {
 
     container.innerHTML +=
-      createMatchCard(
+      createMatch(
         match,
         false
       );
@@ -1331,224 +739,144 @@ async function loadUpcomingMatches() {
 
 
 /* =====================================================
-   CREATE MATCH CARD
+   MATCH CARD
 ===================================================== */
 
-function createMatchCard(
+function createMatch(
   match,
   isLive
 ) {
 
-
   const home =
     match.teams.home;
-
 
   const away =
     match.teams.away;
 
-
   const homeScore =
-    match.goals.home !== null
-      ? match.goals.home
-      : "-";
-
+    match.goals.home ??
+    "-";
 
   const awayScore =
-    match.goals.away !== null
-      ? match.goals.away
-      : "-";
-
+    match.goals.away ??
+    "-";
 
   const status =
     match.fixture.status.short;
 
-
   const elapsed =
     match.fixture.status.elapsed;
-
-
-  /*
-     Determine status.
-  */
 
   let statusText =
     match.fixture.status.long;
 
-
   let statusClass =
-    "status-upcoming";
-
+    "upcoming";
 
   if (
-
     status === "1H" ||
-
     status === "2H" ||
-
     status === "ET" ||
-
     status === "P"
-
   ) {
 
     statusClass =
-      "status-live";
-
+      "live";
 
     statusText =
       elapsed
-      ? "LIVE " + elapsed + "'"
+      ? `LIVE - ${elapsed}'`
       : "LIVE";
 
   }
 
-
-  else if (status === "HT") {
+  else if (
+    status === "HT"
+  ) {
 
     statusClass =
-      "status-half";
+      "halftime";
 
     statusText =
       "Half Time";
 
   }
 
-
   else if (
-
     status === "FT" ||
-
     status === "AET" ||
-
     status === "PEN"
-
   ) {
 
     statusClass =
-      "status-finished";
+      "finished";
 
     statusText =
       "Finished";
 
   }
 
-
   else if (
-
-    status === "PST"
-
-  ) {
-
-    statusClass =
-      "status-postponed";
-
-    statusText =
-      "Postponed";
-
-  }
-
-
-  else if (
-
+    status === "PST" ||
     status === "CANC"
-
   ) {
 
     statusClass =
-      "status-postponed";
+      "postponed";
 
     statusText =
-      "Cancelled";
+      status === "PST"
+      ? "Postponed"
+      : "Cancelled";
 
   }
 
-
-  /*
-     Nigeria time.
-
-     Africa/Lagos = Nigeria.
-  */
-
-  const matchDate =
+  const date =
     new Date(
       match.fixture.date
     );
 
-
   const nigeriaTime =
-    matchDate.toLocaleString(
+    date.toLocaleString(
       "en-NG",
       {
 
         timeZone:
-          "Africa/Lagos",
+        "Africa/Lagos",
 
         weekday:
-          "short",
+        "short",
 
         day:
-          "2-digit",
+        "2-digit",
 
         month:
-          "short",
+        "short",
 
         hour:
-          "2-digit",
+        "2-digit",
 
         minute:
-          "2-digit",
+        "2-digit",
 
         hour12:
-          true
+        true
 
       }
     );
 
-
   const round =
-    match.league.round || "";
+    match.league.round ||
+    "";
 
-
-  /*
-     Score is shown for live matches
-     and completed matches.
-  */
-
-  let scoreHTML = `
-
-    <div class="score">
-
-      ${homeScore} - ${awayScore}
-
-    </div>
-
-  `;
-
-
-  /*
-     Upcoming matches have no score yet.
-  */
-
-  if (!isLive) {
-
-    scoreHTML = `
-
-      <div class="score">
-
-        vs
-
-      </div>
-
-    `;
-
-  }
-
+  const score =
+    isLive
+    ? `${homeScore} - ${awayScore}`
+    : "vs";
 
   return `
 
     <div class="match">
-
 
       <div class="league-name">
 
@@ -1556,72 +884,46 @@ function createMatchCard(
 
       </div>
 
-
       ${
         round
-
         ?
-
         `<div class="round">
-
           ${round}
-
         </div>`
-
         :
-
         ""
-
       }
 
-
       <div class="teams">
-
 
         <div class="team">
 
           <img
-
             class="team-logo"
-
             src="${home.logo}"
-
             alt="${home.name}"
-
           >
 
           ${home.name}
 
         </div>
 
-
         <div class="score-area">
 
-          ${scoreHTML}
+          <div class="score">
 
+            ${score}
 
-          <div
-            class="${
+          </div>
 
-              "status " +
-
-              statusClass
-
-            }">
+          <div class="status ${statusClass}">
 
             ${
               isLive
-
               ?
-
-              `<span
-                class="live-indicator">
-              </span>`
-
+              `<span class="live-dot"></span>`
               :
-
               ""
-
             }
 
             ${statusText}
@@ -1630,33 +932,25 @@ function createMatchCard(
 
         </div>
 
-
         <div class="team">
 
           <img
-
             class="team-logo"
-
             src="${away.logo}"
-
             alt="${away.name}"
-
           >
 
           ${away.name}
 
         </div>
 
-
       </div>
-
 
       <div class="match-time">
 
         🕒 ${nigeriaTime}
 
       </div>
-
 
     </div>
 
@@ -1666,27 +960,23 @@ function createMatchCard(
 
 
 /* =====================================================
-   FORMAT DATE
+   DATE FORMAT
 ===================================================== */
 
 function formatDate(date) {
 
-
   const year =
     date.getFullYear();
-
 
   const month =
     String(
       date.getMonth() + 1
-    ).padStart(2, "0");
-
+    ).padStart(2,"0");
 
   const day =
     String(
       date.getDate()
-    ).padStart(2, "0");
-
+    ).padStart(2,"0");
 
   return `${year}-${month}-${day}`;
 
@@ -1694,21 +984,18 @@ function formatDate(date) {
 
 
 /* =====================================================
-   TOGGLE LIVE / UPCOMING
+   LIVE / UPCOMING TOGGLE
 ===================================================== */
 
 function showMatches(type) {
 
-
   currentView =
     type;
-
 
   const buttons =
     document.querySelectorAll(
       "#toggleButtons button"
     );
-
 
   buttons.forEach(btn => {
 
@@ -1718,55 +1005,80 @@ function showMatches(type) {
 
   });
 
-
   if (type === "live") {
 
     buttons[0]
-      .classList.add("active");
+      .classList.add(
+        "active"
+      );
 
-
-    document
-      .getElementById(
-        "liveMatches"
-      )
-      .style.display =
+    document.getElementById(
+      "liveMatches"
+    ).style.display =
       "block";
 
-
-    document
-      .getElementById(
-        "upcomingMatches"
-      )
-      .style.display =
+    document.getElementById(
+      "upcomingMatches"
+    ).style.display =
       "none";
 
+    if (validKey()) {
+
+      loadLiveMatches();
+
+    }
+
+  }
+
+  else {
+
+    buttons[1]
+      .classList.add(
+        "active"
+      );
+
+    document.getElementById(
+      "liveMatches"
+    ).style.display =
+      "none";
+
+    document.getElementById(
+      "upcomingMatches"
+    ).style.display =
+      "block";
+
+    if (validKey()) {
+
+      loadUpcomingMatches();
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+function refreshCurrentView() {
+
+  if (!validKey()) {
+
+    showKeyError();
+
+    return;
+
+  }
+
+  if (currentView === "live") {
 
     loadLiveMatches();
 
   }
 
-
   else {
-
-    buttons[1]
-      .classList.add("active");
-
-
-    document
-      .getElementById(
-        "liveMatches"
-      )
-      .style.display =
-      "none";
-
-
-    document
-      .getElementById(
-        "upcomingMatches"
-      )
-      .style.display =
-      "block";
-
 
     loadUpcomingMatches();
 
@@ -1776,44 +1088,28 @@ function showMatches(type) {
 
 
 /* =====================================================
-   API KEY MESSAGE
+   KEY ERROR
 ===================================================== */
 
-function showAPIKeyMessage() {
-
+function showKeyError() {
 
   document.getElementById(
     "liveMatches"
   ).innerHTML = `
 
     <div class="section-title">
-
       🔴 Live Matches
-
     </div>
 
     <div class="error">
 
-      ⚠️ API key has not been added.
+      ⚠️ API key not added.
 
       <br><br>
 
-      Add your new API-Football key
-      to the API_KEY section in the
-      code before testing.
-
-    </div>
-
-  `;
-
-
-  document.getElementById(
-    "upcomingMatches"
-  ).innerHTML = `
-
-    <div class="section-title">
-
-      📅 Upcoming Matches
+      Add your new API-Football
+      key in the API configuration
+      section.
 
     </div>
 
@@ -1831,12 +1127,10 @@ function showAPIError(
   errors
 ) {
 
-
   console.error(
-    "API errors:",
+    "API Error:",
     errors
   );
-
 
   container.innerHTML += `
 
@@ -1846,8 +1140,8 @@ function showAPIError(
 
       <br><br>
 
-      Check your API key,
-      API plan and connection.
+      Open the browser console
+      to see the technical error.
 
     </div>
 
@@ -1857,59 +1151,14 @@ function showAPIError(
 
 
 /* =====================================================
-   MANUAL REFRESH
-===================================================== */
-
-function manualRefresh() {
-
-
-  if (!checkApiKey()) {
-
-    showAPIKeyMessage();
-
-    return;
-
-  }
-
-
-  loadLeague(
-    currentLeagueId
-  );
-
-}
-
-
-/* =====================================================
-   INITIAL LOAD
+   START APP
 ===================================================== */
 
 loadLeague(
   currentLeagueId
 );
 
-
-/*
-   IMPORTANT:
-
-   We intentionally removed the old:
-
-   setInterval(..., 30000)
-
-   because it repeatedly made TWO API
-   requests every 30 seconds.
-
-   The free API-Football plan currently
-   allows 100 requests/day.
-
-   Users can refresh manually for now.
-
-   Later, when we add a secure backend,
-   we'll implement smarter live updating.
-*/
-
-
 </script>
 
 </body>
-
 </html>
