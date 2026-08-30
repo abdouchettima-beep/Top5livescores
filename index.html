@@ -8,7 +8,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<meta name="theme-color" content="#0b0b0b">
+<meta name="theme-color" content="#111111">
 
 <title>Top 5 Leagues - Live Scores</title>
 
@@ -22,23 +22,20 @@ body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
     background: #0b0b0b;
-    color: #fff;
+    color: #ffffff;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 
 .header {
     background: linear-gradient(90deg, #11a36a, #0785ff);
-    padding: 15px 10px;
+    padding: 14px 10px;
     text-align: center;
-    font-size: 20px;
+    font-size: 19px;
     font-weight: bold;
-    position: sticky;
-    top: 0;
-    z-index: 50;
 }
 
-/* ================= AD ================= */
+/* AD */
 
 .ad {
     margin: 10px auto;
@@ -53,14 +50,14 @@ body {
     font-size: 12px;
 }
 
-/* ================= LEAGUES ================= */
+/* LEAGUES */
 
 .leagues {
     display: flex;
     overflow-x: auto;
     gap: 7px;
     padding: 10px;
-    background: #111;
+    background: #111111;
 }
 
 .leagues::-webkit-scrollbar {
@@ -71,18 +68,19 @@ body {
     flex: 0 0 auto;
     border: none;
     background: #292929;
-    color: #fff;
+    color: white;
     padding: 9px 13px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .league-btn.active {
     background: #168cff;
 }
 
-/* ================= TABS ================= */
+/* TABS */
 
 .tabs {
     display: flex;
@@ -99,13 +97,14 @@ body {
     border-radius: 20px;
     font-size: 13px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .tab.active {
     background: #168cff;
 }
 
-/* ================= REFRESH ================= */
+/* REFRESH */
 
 .refresh-box {
     text-align: center;
@@ -114,14 +113,19 @@ body {
 
 .refresh {
     border: none;
-    background: #333;
+    background: #333333;
     color: white;
     padding: 9px 18px;
     border-radius: 20px;
     font-weight: bold;
+    cursor: pointer;
 }
 
-/* ================= TITLE ================= */
+.refresh:active {
+    transform: scale(.96);
+}
+
+/* TITLE */
 
 .section-title {
     text-align: center;
@@ -130,7 +134,7 @@ body {
     margin: 8px 0 12px;
 }
 
-/* ================= LOADING ================= */
+/* LOADING */
 
 .loading {
     text-align: center;
@@ -149,14 +153,12 @@ body {
 }
 
 @keyframes spin {
-
     100% {
         transform: rotate(360deg);
     }
-
 }
 
-/* ================= ERROR ================= */
+/* ERROR */
 
 .error {
     margin: 15px;
@@ -167,7 +169,7 @@ body {
     text-align: center;
 }
 
-/* ================= EMPTY ================= */
+/* EMPTY */
 
 .empty {
     margin: 15px;
@@ -178,7 +180,7 @@ body {
     color: #999;
 }
 
-/* ================= MATCH CARD ================= */
+/* MATCH */
 
 .match {
     margin: 10px;
@@ -186,16 +188,6 @@ body {
     background: #1c1c1c;
     border-radius: 11px;
     border-left: 4px solid #168cff;
-    cursor: pointer;
-    transition: transform .15s;
-}
-
-.match:active {
-    transform: scale(.98);
-}
-
-.match.live {
-    border-left-color: #ff3030;
 }
 
 .match-header {
@@ -232,21 +224,21 @@ body {
     display: flex;
     align-items: center;
     gap: 9px;
-    width: 75%;
+    width: 70%;
     font-size: 14px;
     font-weight: bold;
 }
 
 .team img {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
 }
 
 .score {
-    width: 25%;
+    width: 30%;
     text-align: right;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: bold;
 }
 
@@ -265,265 +257,18 @@ body {
     margin-top: 8px;
 }
 
-.tap-details {
-    text-align: center;
-    margin-top: 10px;
-    color: #777;
-    font-size: 10px;
+/* LIVE CARD */
+
+.match.live {
+    border-left-color: #ff3030;
 }
 
-/* ================= DETAILS PAGE ================= */
-
-#detailsPage {
-    display: none;
-    min-height: 100vh;
-    background: #0b0b0b;
-}
-
-.details-top {
-    background: linear-gradient(90deg, #11a36a, #0785ff);
-    padding: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-}
-
-.back-btn {
-    border: none;
-    background: rgba(0,0,0,.25);
-    color: white;
-    padding: 9px 14px;
-    border-radius: 20px;
+.live-minute {
+    color: #ff3030;
     font-weight: bold;
 }
 
-.details-league {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 13px;
-    opacity: .9;
-}
-
-.details-status {
-    text-align: center;
-    margin-top: 5px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* ================= SCORE HEADER ================= */
-
-.score-header {
-    background: #151515;
-    padding: 20px 10px;
-    text-align: center;
-}
-
-.teams-details {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.team-detail {
-    width: 38%;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.team-detail img {
-    width: 55px;
-    height: 55px;
-    object-fit: contain;
-    display: block;
-    margin: auto auto 8px;
-}
-
-.detail-score {
-    width: 24%;
-    font-size: 27px;
-    font-weight: bold;
-}
-
-.detail-time {
-    color: #ffc107;
-    font-size: 13px;
-    margin-top: 10px;
-}
-
-/* ================= DETAIL NAV ================= */
-
-.detail-nav {
-    display: flex;
-    overflow-x: auto;
-    gap: 6px;
-    padding: 10px;
-    background: #111;
-}
-
-.detail-nav::-webkit-scrollbar {
-    display: none;
-}
-
-.detail-tab {
-    flex: 0 0 auto;
-    border: none;
-    background: #292929;
-    color: white;
-    padding: 9px 13px;
-    border-radius: 18px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.detail-tab.active {
-    background: #168cff;
-}
-
-/* ================= DETAIL CONTENT ================= */
-
-.detail-content {
-    padding: 10px;
-}
-
-.info-box {
-    background: #181818;
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 10px;
-}
-
-.info-title {
-    font-size: 15px;
-    font-weight: bold;
-    margin-bottom: 12px;
-}
-
-/* ================= EVENTS ================= */
-
-.event {
-    display: flex;
-    align-items: center;
-    padding: 10px 4px;
-    border-bottom: 1px solid #292929;
-}
-
-.event:last-child {
-    border-bottom: none;
-}
-
-.event-minute {
-    width: 45px;
-    color: #42aaff;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.event-icon {
-    width: 35px;
-    font-size: 17px;
-}
-
-.event-text {
-    flex: 1;
-    font-size: 13px;
-}
-
-.event-team {
-    color: #888;
-    font-size: 10px;
-    margin-top: 3px;
-}
-
-/* ================= STATISTICS ================= */
-
-.stat-row {
-    margin: 14px 0;
-}
-
-.stat-numbers {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 13px;
-}
-
-.stat-name {
-    text-align: center;
-    color: #888;
-    font-size: 11px;
-    margin: 5px 0;
-}
-
-.stat-bars {
-    display: flex;
-    gap: 3px;
-}
-
-.stat-home,
-.stat-away {
-    height: 5px;
-    background: #168cff;
-    border-radius: 5px;
-}
-
-.stat-away {
-    background: #555;
-}
-
-/* ================= LINEUPS ================= */
-
-.lineup-team {
-    background: #202020;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.lineup-team h3 {
-    margin-top: 0;
-    font-size: 14px;
-}
-
-.player {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 3px;
-    border-bottom: 1px solid #2b2b2b;
-    font-size: 12px;
-}
-
-.player:last-child {
-    border-bottom: none;
-}
-
-/* ================= H2H ================= */
-
-.h2h-match {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 3px;
-    border-bottom: 1px solid #292929;
-    font-size: 12px;
-}
-
-.h2h-date {
-    color: #777;
-    width: 22%;
-}
-
-.h2h-teams {
-    width: 58%;
-    text-align: center;
-}
-
-.h2h-score {
-    width: 20%;
-    text-align: right;
-    font-weight: bold;
-}
-
-/* ================= FOOTER ================= */
+/* FOOTER */
 
 .footer {
     text-align: center;
@@ -538,239 +283,132 @@ body {
 
 <body>
 
+<!-- HEADER -->
 
-<!-- =====================================================
-     FIXTURES PAGE
-===================================================== -->
-
-<div id="fixturesPage">
-
-    <div class="header">
-        ⚽ Top 5 Leagues - Live Scores
-    </div>
-
-    <div class="ad">
-        AdMob Banner
-    </div>
+<div class="header">
+    ⚽ Top 5 Leagues - Live Scores
+</div>
 
 
-    <div class="leagues">
+<!-- AD PLACEHOLDER -->
 
-        <button class="league-btn active"
-        onclick="selectLeague('all', this)">
-            🌍 All
-        </button>
-
-        <button class="league-btn"
-        onclick="selectLeague('39', this)">
-            🏴 Premier League
-        </button>
-
-        <button class="league-btn"
-        onclick="selectLeague('140', this)">
-            🇪🇸 La Liga
-        </button>
-
-        <button class="league-btn"
-        onclick="selectLeague('135', this)">
-            🇮🇹 Serie A
-        </button>
-
-        <button class="league-btn"
-        onclick="selectLeague('78', this)">
-            🇩🇪 Bundesliga
-        </button>
-
-        <button class="league-btn"
-        onclick="selectLeague('61', this)">
-            🇫🇷 Ligue 1
-        </button>
-
-        <button class="league-btn"
-        onclick="selectLeague('2', this)">
-            🏆 Champions League
-        </button>
-
-    </div>
+<div class="ad">
+    AdMob Banner
+</div>
 
 
-    <div class="tabs">
+<!-- LEAGUES -->
 
-        <button class="tab active"
-        onclick="changeTab('live', this)">
-            🔴 Live
-        </button>
+<div class="leagues">
 
-        <button class="tab"
-        onclick="changeTab('upcoming', this)">
-            📅 Upcoming
-        </button>
+    <button class="league-btn active"
+    data-league="all"
+    onclick="selectLeague('all', this)">
+        🌍 All
+    </button>
 
-        <button class="tab"
-        onclick="changeTab('finished', this)">
-            ✅ Finished
-        </button>
+    <button class="league-btn"
+    data-league="39"
+    onclick="selectLeague('39', this)">
+        🏴 Premier League
+    </button>
 
-    </div>
+    <button class="league-btn"
+    data-league="140"
+    onclick="selectLeague('140', this)">
+        🇪🇸 La Liga
+    </button>
 
+    <button class="league-btn"
+    data-league="135"
+    onclick="selectLeague('135', this)">
+        🇮🇹 Serie A
+    </button>
 
-    <div class="refresh-box">
+    <button class="league-btn"
+    data-league="78"
+    onclick="selectLeague('78', this)">
+        🇩🇪 Bundesliga
+    </button>
 
-        <button class="refresh"
-        onclick="loadMatches(true)">
-            🔄 Refresh
-        </button>
+    <button class="league-btn"
+    data-league="61"
+    onclick="selectLeague('61', this)">
+        🇫🇷 Ligue 1
+    </button>
 
-    </div>
+    <button class="league-btn"
+    data-league="2"
+    onclick="selectLeague('2', this)">
+        🏆 Champions League
+    </button>
 
-
-    <div class="section-title"
-    id="sectionTitle">
-
-        🔴 Live Matches
-
-    </div>
-
-
-    <div id="matches">
-
-        <div class="loading">
-
-            <div class="spinner"></div>
-
-            Loading football matches...
-
-        </div>
-
-    </div>
+</div>
 
 
-    <div class="footer">
+<!-- TABS -->
 
-        Top 5 LiveScore<br>
-        Powered by API-Football
+<div class="tabs">
+
+    <button
+    class="tab active"
+    onclick="changeTab('live', this)">
+        🔴 Live
+    </button>
+
+    <button
+    class="tab"
+    onclick="changeTab('upcoming', this)">
+        📅 Upcoming
+    </button>
+
+    <button
+    class="tab"
+    onclick="changeTab('finished', this)">
+        ✅ Finished
+    </button>
+
+</div>
+
+
+<!-- REFRESH -->
+
+<div class="refresh-box">
+
+    <button class="refresh"
+    onclick="loadMatches(true)">
+        🔄 Refresh
+    </button>
+
+</div>
+
+
+<!-- TITLE -->
+
+<div class="section-title" id="sectionTitle">
+    🔴 Live Matches
+</div>
+
+
+<!-- MATCHES -->
+
+<div id="matches">
+
+    <div class="loading">
+
+        <div class="spinner"></div>
+
+        Loading football matches...
 
     </div>
 
 </div>
 
 
-<!-- =====================================================
-     MATCH DETAILS PAGE
-===================================================== -->
+<div class="footer">
 
-<div id="detailsPage">
-
-    <div class="details-top">
-
-        <button class="back-btn"
-        onclick="closeDetails()">
-
-            ← Back
-
-        </button>
-
-        <div class="details-league"
-        id="detailsLeague">
-
-        </div>
-
-        <div class="details-status"
-        id="detailsStatus">
-
-        </div>
-
-    </div>
-
-
-    <div class="score-header">
-
-        <div class="teams-details">
-
-            <div class="team-detail">
-
-                <img id="detailHomeLogo">
-
-                <div id="detailHomeName">
-                </div>
-
-            </div>
-
-
-            <div class="detail-score">
-
-                <span id="detailHomeScore">-</span>
-
-                &nbsp;:&nbsp;
-
-                <span id="detailAwayScore">-</span>
-
-                <div class="detail-time"
-                id="detailTime">
-
-                </div>
-
-            </div>
-
-
-            <div class="team-detail">
-
-                <img id="detailAwayLogo">
-
-                <div id="detailAwayName">
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="detail-nav">
-
-        <button class="detail-tab active"
-        onclick="changeDetailTab('events', this)">
-            📝 Commentary
-        </button>
-
-        <button class="detail-tab"
-        onclick="changeDetailTab('stats', this)">
-            📊 Statistics
-        </button>
-
-        <button class="detail-tab"
-        onclick="changeDetailTab('lineups', this)">
-            👥 Lineups
-        </button>
-
-        <button class="detail-tab"
-        onclick="changeDetailTab('h2h', this)">
-            🆚 H2H
-        </button>
-
-    </div>
-
-
-    <div class="detail-content"
-    id="detailContent">
-
-        <div class="loading">
-
-            <div class="spinner"></div>
-
-            Loading match information...
-
-        </div>
-
-    </div>
-
-
-    <div class="footer">
-
-        Powered by API-Football
-
-    </div>
+    LiveScore Football<br>
+    Powered by API-Football
 
 </div>
 
@@ -779,9 +417,22 @@ body {
 
 /* =====================================================
    API CONFIGURATION
-===================================================== */
+   ===================================================== */
 
-const API_KEY = "b6ada9c0192ddae9cb4d6f7812da6058KEY";
+
+/*
+   IMPORTANT:
+
+   Put your NEW API key between the quotation marks.
+
+   Example:
+
+   const API_KEY = "YOUR_KEY";
+
+*/
+
+const API_KEY = "b6ada9c0192ddae9cb4d6f7812da6058";
+
 
 const API_URL =
 "https://v3.football.api-sports.io";
@@ -789,15 +440,20 @@ const API_URL =
 
 /* =====================================================
    LEAGUES
-===================================================== */
+   ===================================================== */
 
 const LEAGUES = {
 
     "39": "Premier League",
+
     "140": "La Liga",
+
     "135": "Serie A",
+
     "78": "Bundesliga",
+
     "61": "Ligue 1",
+
     "2": "Champions League"
 
 };
@@ -805,7 +461,7 @@ const LEAGUES = {
 
 /* =====================================================
    APP STATE
-===================================================== */
+   ===================================================== */
 
 let selectedLeague = "all";
 
@@ -815,16 +471,11 @@ let todayMatches = [];
 
 let liveMatches = [];
 
-let currentMatch = null;
-
-let currentDetailTab = "events";
-
-let liveRefreshTimer = null;
-
 
 /* =====================================================
-   TODAY
-===================================================== */
+   GET TODAY'S DATE
+   NIGERIA TIME
+   ===================================================== */
 
 function getToday() {
 
@@ -839,13 +490,13 @@ function getToday() {
             }
         ).formatToParts(new Date());
 
-    const year =
+    let year =
         parts.find(p => p.type === "year").value;
 
-    const month =
+    let month =
         parts.find(p => p.type === "month").value;
 
-    const day =
+    let day =
         parts.find(p => p.type === "day").value;
 
     return `${year}-${month}-${day}`;
@@ -854,24 +505,33 @@ function getToday() {
 
 
 /* =====================================================
-   API REQUEST
-===================================================== */
+   LOAD TODAY'S FIXTURES
+   ===================================================== */
 
-async function apiRequest(endpoint) {
+async function loadTodayFixtures() {
 
-    const response =
-        await fetch(
-            API_URL + endpoint,
-            {
-                method: "GET",
-                headers: {
-                    "x-apisports-key": API_KEY
-                }
-            }
-        );
+    const today = getToday();
+
+    const url =
+        `${API_URL}/fixtures?date=${today}&timezone=Africa/Lagos`;
+
+
+    const response = await fetch(url, {
+
+        method: "GET",
+
+        headers: {
+
+            "x-apisports-key": API_KEY
+
+        }
+
+    });
+
 
     const data =
         await response.json();
+
 
     if (!response.ok) {
 
@@ -881,9 +541,10 @@ async function apiRequest(endpoint) {
 
     }
 
+
     if (
         data.errors &&
-        Object.keys(data.errors).length
+        Object.keys(data.errors).length > 0
     ) {
 
         throw new Error(
@@ -892,49 +553,76 @@ async function apiRequest(endpoint) {
 
     }
 
-    return data.response || [];
-
-}
-
-
-/* =====================================================
-   LOAD TODAY
-===================================================== */
-
-async function loadTodayFixtures() {
-
-    const today = getToday();
 
     todayMatches =
-        await apiRequest(
-            `/fixtures?date=${today}&timezone=Africa/Lagos`
-        );
+        data.response || [];
 
 }
 
 
 /* =====================================================
-   LOAD LIVE
-===================================================== */
+   LOAD LIVE FIXTURES
+   ===================================================== */
 
 async function loadLiveFixtures() {
 
-    liveMatches =
-        await apiRequest(
-            `/fixtures?live=all&timezone=Africa/Lagos`
+    const url =
+        `${API_URL}/fixtures?live=all&timezone=Africa/Lagos`;
+
+
+    const response = await fetch(url, {
+
+        method: "GET",
+
+        headers: {
+
+            "x-apisports-key": API_KEY
+
+        }
+
+    });
+
+
+    const data =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "HTTP Error " + response.status
         );
+
+    }
+
+
+    if (
+        data.errors &&
+        Object.keys(data.errors).length > 0
+    ) {
+
+        throw new Error(
+            JSON.stringify(data.errors)
+        );
+
+    }
+
+
+    liveMatches =
+        data.response || [];
 
 }
 
 
 /* =====================================================
-   LOAD MATCHES
-===================================================== */
+   MAIN LOAD
+   ===================================================== */
 
 async function loadMatches(force = false) {
 
     const container =
         document.getElementById("matches");
+
 
     container.innerHTML = `
 
@@ -948,15 +636,27 @@ async function loadMatches(force = false) {
 
     `;
 
+
     try {
 
+        /*
+           Load today's fixtures.
+        */
+
         await loadTodayFixtures();
+
+
+        /*
+           Only request live data when
+           the Live tab is selected.
+        */
 
         if (selectedTab === "live") {
 
             await loadLiveFixtures();
 
         }
+
 
         renderMatches();
 
@@ -965,6 +665,7 @@ async function loadMatches(force = false) {
     catch (error) {
 
         console.error(error);
+
 
         container.innerHTML = `
 
@@ -975,6 +676,10 @@ async function loadMatches(force = false) {
                 <br><br>
 
                 ${escapeHTML(error.message)}
+
+                <br><br>
+
+                Please check your API key.
 
             </div>
 
@@ -987,7 +692,7 @@ async function loadMatches(force = false) {
 
 /* =====================================================
    FILTER LEAGUE
-===================================================== */
+   ===================================================== */
 
 function filterLeague(matches) {
 
@@ -1003,6 +708,7 @@ function filterLeague(matches) {
 
     }
 
+
     return matches.filter(match =>
 
         String(match.league.id) ===
@@ -1015,15 +721,20 @@ function filterLeague(matches) {
 
 /* =====================================================
    RENDER MATCHES
-===================================================== */
+   ===================================================== */
 
 function renderMatches() {
 
     const container =
         document.getElementById("matches");
 
+
     let matches = [];
 
+
+    /*
+       LIVE
+    */
 
     if (selectedTab === "live") {
 
@@ -1031,6 +742,11 @@ function renderMatches() {
             filterLeague(liveMatches);
 
     }
+
+
+    /*
+       UPCOMING
+    */
 
     else if (selectedTab === "upcoming") {
 
@@ -1048,6 +764,11 @@ function renderMatches() {
             );
 
     }
+
+
+    /*
+       FINISHED
+    */
 
     else {
 
@@ -1068,6 +789,10 @@ function renderMatches() {
     }
 
 
+    /*
+       Sort by kickoff time
+    */
+
     matches.sort((a, b) =>
 
         new Date(a.fixture.date) -
@@ -1076,7 +801,11 @@ function renderMatches() {
     );
 
 
-    if (!matches.length) {
+    /*
+       No matches
+    */
+
+    if (matches.length === 0) {
 
         container.innerHTML = `
 
@@ -1103,6 +832,10 @@ function renderMatches() {
     }
 
 
+    /*
+       Display matches
+    */
+
     container.innerHTML =
         matches
         .map(createMatchCard)
@@ -1112,20 +845,26 @@ function renderMatches() {
 
 
 /* =====================================================
-   MATCH CARD
-===================================================== */
+   CREATE MATCH CARD
+   ===================================================== */
 
 function createMatchCard(match) {
 
-    const fixture = match.fixture;
+    const fixture =
+        match.fixture;
 
-    const league = match.league;
+    const league =
+        match.league;
 
-    const teams = match.teams;
+    const teams =
+        match.teams;
 
-    const goals = match.goals;
+    const goals =
+        match.goals;
 
-    const status = fixture.status;
+    const status =
+        fixture.status;
+
 
     const isLive =
         [
@@ -1144,15 +883,29 @@ function createMatchCard(match) {
 
     if (isLive) {
 
-        statusText =
-            status.elapsed
-            ? `${status.elapsed}'`
-            : "LIVE";
+        if (status.elapsed) {
+
+            statusText =
+                `${status.elapsed}'`;
+
+        }
+
+        else {
+
+            statusText =
+                "LIVE";
+
+        }
 
     }
 
 
+    /*
+       Upcoming match time
+    */
+
     let matchTime = "";
+
 
     if (status.short === "NS") {
 
@@ -1162,12 +915,20 @@ function createMatchCard(match) {
     }
 
 
+    /*
+       Score
+    */
+
     const homeScore =
         goals.home ?? "-";
 
     const awayScore =
         goals.away ?? "-";
 
+
+    /*
+       Venue
+    */
 
     const venue =
         fixture.venue &&
@@ -1178,8 +939,7 @@ function createMatchCard(match) {
 
     return `
 
-        <div class="match ${isLive ? "live" : ""}"
-        onclick="openMatch(${match.fixture.id})">
+        <div class="match ${isLive ? "live" : ""}">
 
             <div class="match-header">
 
@@ -1190,6 +950,7 @@ function createMatchCard(match) {
                     )}
 
                 </div>
+
 
                 <div class="
                     match-status
@@ -1230,18 +991,22 @@ function createMatchCard(match) {
                             <img
                             src="${teams.home.logo}"
                             alt=""
+                            onerror="this.style.display='none'"
                             >
                         `
                         : ""
                     }
 
                     <span>
+
                         ${escapeHTML(
                             teams.home.name
                         )}
+
                     </span>
 
                 </div>
+
 
                 <div class="score">
 
@@ -1262,18 +1027,22 @@ function createMatchCard(match) {
                             <img
                             src="${teams.away.logo}"
                             alt=""
+                            onerror="this.style.display='none'"
                             >
                         `
                         : ""
                     }
 
                     <span>
+
                         ${escapeHTML(
                             teams.away.name
                         )}
+
                     </span>
 
                 </div>
+
 
                 <div class="score">
 
@@ -1296,13 +1065,6 @@ function createMatchCard(match) {
                 : ""
             }
 
-
-            <div class="tap-details">
-
-                👆 Tap for match details
-
-            </div>
-
         </div>
 
     `;
@@ -1311,871 +1073,37 @@ function createMatchCard(match) {
 
 
 /* =====================================================
-   OPEN MATCH
-===================================================== */
+   FORMAT TIME
+   ===================================================== */
 
-async function openMatch(matchId) {
+function formatTime(dateString) {
 
-    const allMatches =
-        [
-            ...todayMatches,
-            ...liveMatches
-        ];
+    return new Intl.DateTimeFormat(
 
-    currentMatch =
-        allMatches.find(
-            match =>
-                String(match.fixture.id) ===
-                String(matchId)
-        );
+        "en-NG",
 
+        {
 
-    if (!currentMatch) {
+            timeZone: "Africa/Lagos",
 
-        return;
+            hour: "2-digit",
 
-    }
+            minute: "2-digit",
 
-
-    document.getElementById(
-        "fixturesPage"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "detailsPage"
-    ).style.display = "block";
-
-
-    window.scrollTo(0, 0);
-
-
-    showMatchHeader();
-
-    currentDetailTab = "events";
-
-    document
-        .querySelectorAll(".detail-tab")
-        .forEach(btn =>
-            btn.classList.remove("active")
-        );
-
-    document
-        .querySelector(".detail-tab")
-        .classList.add("active");
-
-
-    await loadDetailContent();
-
-}
-
-
-/* =====================================================
-   MATCH HEADER
-===================================================== */
-
-function showMatchHeader() {
-
-    const match = currentMatch;
-
-    const fixture = match.fixture;
-
-    const teams = match.teams;
-
-    const goals = match.goals;
-
-    const status = fixture.status;
-
-
-    document.getElementById(
-        "detailsLeague"
-    ).innerHTML =
-        escapeHTML(match.league.name);
-
-
-    document.getElementById(
-        "detailsStatus"
-    ).innerHTML =
-        status.short;
-
-
-    document.getElementById(
-        "detailHomeName"
-    ).innerHTML =
-        escapeHTML(teams.home.name);
-
-
-    document.getElementById(
-        "detailAwayName"
-    ).innerHTML =
-        escapeHTML(teams.away.name);
-
-
-    document.getElementById(
-        "detailHomeLogo"
-    ).src =
-        teams.home.logo || "";
-
-
-    document.getElementById(
-        "detailAwayLogo"
-    ).src =
-        teams.away.logo || "";
-
-
-    document.getElementById(
-        "detailHomeScore"
-    ).innerHTML =
-        goals.home ?? "-";
-
-
-    document.getElementById(
-        "detailAwayScore"
-    ).innerHTML =
-        goals.away ?? "-";
-
-
-    if (status.elapsed) {
-
-        document.getElementById(
-            "detailTime"
-        ).innerHTML =
-            status.elapsed + "'";
-
-    }
-
-    else if (status.short === "NS") {
-
-        document.getElementById(
-            "detailTime"
-        ).innerHTML =
-            formatTime(fixture.date);
-
-    }
-
-    else {
-
-        document.getElementById(
-            "detailTime"
-        ).innerHTML =
-            status.short;
-
-    }
-
-}
-
-
-/* =====================================================
-   DETAIL TAB
-===================================================== */
-
-function changeDetailTab(tab, button) {
-
-    currentDetailTab = tab;
-
-
-    document
-        .querySelectorAll(".detail-tab")
-        .forEach(btn =>
-            btn.classList.remove("active")
-        );
-
-
-    button.classList.add("active");
-
-
-    loadDetailContent();
-
-}
-
-
-/* =====================================================
-   LOAD DETAIL CONTENT
-===================================================== */
-
-async function loadDetailContent() {
-
-    const content =
-        document.getElementById(
-            "detailContent"
-        );
-
-
-    content.innerHTML = `
-
-        <div class="loading">
-
-            <div class="spinner"></div>
-
-            Loading information...
-
-        </div>
-
-    `;
-
-
-    try {
-
-        if (currentDetailTab === "events") {
-
-            await loadEvents();
+            hour12: true
 
         }
 
-        else if (currentDetailTab === "stats") {
-
-            await loadStatistics();
-
-        }
-
-        else if (currentDetailTab === "lineups") {
-
-            await loadLineups();
-
-        }
-
-        else if (currentDetailTab === "h2h") {
-
-            await loadH2H();
-
-        }
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        content.innerHTML = `
-
-            <div class="error">
-
-                ❌ Unable to load this information.
-
-                <br><br>
-
-                ${escapeHTML(error.message)}
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* =====================================================
-   EVENTS / COMMENTARY
-===================================================== */
-
-async function loadEvents() {
-
-    const events =
-        await apiRequest(
-            `/fixtures/events?fixture=${currentMatch.fixture.id}`
-        );
-
-
-    const content =
-        document.getElementById(
-            "detailContent"
-        );
-
-
-    if (!events.length) {
-
-        content.innerHTML = `
-
-            <div class="empty">
-
-                📝 No commentary or events
-                are available for this match yet.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    content.innerHTML = `
-
-        <div class="info-box">
-
-            <div class="info-title">
-
-                📝 Match Commentary
-
-            </div>
-
-            ${events.map(event => {
-
-                let icon = "ℹ️";
-
-                if (event.type === "Goal") {
-
-                    icon = "⚽";
-
-                }
-
-                else if (event.type === "Card") {
-
-                    if (
-                        event.detail &&
-                        event.detail
-                        .toLowerCase()
-                        .includes("red")
-                    ) {
-
-                        icon = "🟥";
-
-                    }
-
-                    else {
-
-                        icon = "🟨";
-
-                    }
-
-                }
-
-                else if (
-                    event.type === "subst"
-                ) {
-
-                    icon = "🔄";
-
-                }
-
-
-                const minute =
-                    event.time &&
-                    event.time.elapsed != null
-                    ? event.time.elapsed + "'"
-                    : "";
-
-
-                const player =
-                    event.player &&
-                    event.player.name
-                    ? event.player.name
-                    : "";
-
-
-                const assist =
-                    event.assist &&
-                    event.assist.name
-                    ? event.assist.name
-                    : "";
-
-
-                let text =
-                    event.detail ||
-                    event.type ||
-                    "Match event";
-
-
-                return `
-
-                    <div class="event">
-
-                        <div class="event-minute">
-
-                            ${minute}
-
-                        </div>
-
-                        <div class="event-icon">
-
-                            ${icon}
-
-                        </div>
-
-                        <div class="event-text">
-
-                            ${escapeHTML(text)}
-
-                            ${
-                                player
-                                ? `
-                                    <div class="event-team">
-
-                                        ${escapeHTML(player)}
-
-                                        ${
-                                            assist
-                                            ? " • Assist: " +
-                                              escapeHTML(assist)
-                                            : ""
-                                        }
-
-                                    </div>
-                                `
-                                : ""
-                            }
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            }).join("")}
-
-        </div>
-
-    `;
-
-}
-
-
-/* =====================================================
-   STATISTICS
-===================================================== */
-
-async function loadStatistics() {
-
-    const stats =
-        await apiRequest(
-            `/fixtures/statistics?fixture=${currentMatch.fixture.id}`
-        );
-
-
-    const content =
-        document.getElementById(
-            "detailContent"
-        );
-
-
-    if (
-        !stats ||
-        stats.length < 1
-    ) {
-
-        content.innerHTML = `
-
-            <div class="empty">
-
-                📊 Statistics are not
-                available for this match yet.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    const homeStats =
-        stats[0].statistics || [];
-
-
-    const awayStats =
-        stats[1] &&
-        stats[1].statistics
-        ? stats[1].statistics
-        : [];
-
-
-    let html = `
-
-        <div class="info-box">
-
-            <div class="info-title">
-
-                📊 Match Statistics
-
-            </div>
-
-    `;
-
-
-    const names = new Set();
-
-
-    homeStats.forEach(stat =>
-        names.add(stat.type)
+    ).format(
+        new Date(dateString)
     );
 
-
-    awayStats.forEach(stat =>
-        names.add(stat.type)
-    );
-
-
-    names.forEach(name => {
-
-        const home =
-            homeStats.find(
-                stat => stat.type === name
-            );
-
-
-        const away =
-            awayStats.find(
-                stat => stat.type === name
-            );
-
-
-        const homeValue =
-            home ? home.value : "-";
-
-
-        const awayValue =
-            away ? away.value : "-";
-
-
-        html += `
-
-            <div class="stat-row">
-
-                <div class="stat-numbers">
-
-                    <span>
-                        ${formatStat(homeValue)}
-                    </span>
-
-                    <span>
-                        ${formatStat(awayValue)}
-                    </span>
-
-                </div>
-
-
-                <div class="stat-name">
-
-                    ${escapeHTML(name)}
-
-                </div>
-
-            </div>
-
-        `;
-
-    });
-
-
-    html += `</div>`;
-
-
-    content.innerHTML = html;
-
 }
 
 
 /* =====================================================
-   LINEUPS
-===================================================== */
-
-async function loadLineups() {
-
-    const lineups =
-        await apiRequest(
-            `/fixtures/lineups?fixture=${currentMatch.fixture.id}`
-        );
-
-
-    const content =
-        document.getElementById(
-            "detailContent"
-        );
-
-
-    if (!lineups.length) {
-
-        content.innerHTML = `
-
-            <div class="empty">
-
-                👥 Lineups are not available yet.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    let html = "";
-
-
-    lineups.forEach(team => {
-
-        html += `
-
-            <div class="lineup-team">
-
-                <h3>
-
-                    👥 ${escapeHTML(
-                        team.team.name
-                    )}
-
-                </h3>
-
-        `;
-
-
-        if (
-            team.startXI &&
-            team.startXI.length
-        ) {
-
-            html += `
-
-                <div style="
-                    color:#42aaff;
-                    font-size:11px;
-                    margin-bottom:6px;
-                ">
-
-                    Starting XI
-
-                </div>
-
-            `;
-
-
-            team.startXI.forEach(player => {
-
-                html += `
-
-                    <div class="player">
-
-                        <span>
-
-                            ${escapeHTML(
-                                player.player.name
-                            )}
-
-                        </span>
-
-                        <span>
-
-                            #${player.player.number ?? ""}
-
-                            &nbsp;
-
-                            ${player.player.pos || ""}
-
-                        </span>
-
-                    </div>
-
-                `;
-
-            });
-
-        }
-
-
-        if (
-            team.substitutes &&
-            team.substitutes.length
-        ) {
-
-            html += `
-
-                <div style="
-                    color:#42aaff;
-                    font-size:11px;
-                    margin-top:12px;
-                    margin-bottom:6px;
-                ">
-
-                    Substitutes
-
-                </div>
-
-            `;
-
-
-            team.substitutes.forEach(player => {
-
-                html += `
-
-                    <div class="player">
-
-                        <span>
-
-                            ${escapeHTML(
-                                player.player.name
-                            )}
-
-                        </span>
-
-                        <span>
-
-                            #${player.player.number ?? ""}
-
-                        </span>
-
-                    </div>
-
-                `;
-
-            });
-
-        }
-
-
-        html += `</div>`;
-
-    });
-
-
-    content.innerHTML = html;
-
-}
-
-
-/* =====================================================
-   HEAD TO HEAD
-===================================================== */
-
-async function loadH2H() {
-
-    const homeId =
-        currentMatch.teams.home.id;
-
-
-    const awayId =
-        currentMatch.teams.away.id;
-
-
-    const h2h =
-        await apiRequest(
-            `/fixtures/headtohead?h2h=${homeId}-${awayId}&last=10`
-        );
-
-
-    const content =
-        document.getElementById(
-            "detailContent"
-        );
-
-
-    if (!h2h.length) {
-
-        content.innerHTML = `
-
-            <div class="empty">
-
-                🆚 No previous meetings
-                available.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    let html = `
-
-        <div class="info-box">
-
-            <div class="info-title">
-
-                🆚 Head-to-Head
-
-            </div>
-
-    `;
-
-
-    h2h.forEach(match => {
-
-        html += `
-
-            <div class="h2h-match">
-
-                <div class="h2h-date">
-
-                    ${formatDate(
-                        match.fixture.date
-                    )}
-
-                </div>
-
-
-                <div class="h2h-teams">
-
-                    ${escapeHTML(
-                        match.teams.home.name
-                    )}
-
-                    <br>
-
-                    ${escapeHTML(
-                        match.teams.away.name
-                    )}
-
-                </div>
-
-
-                <div class="h2h-score">
-
-                    ${
-                        match.goals.home ?? "-"
-                    }
-
-                    <br>
-
-                    ${
-                        match.goals.away ?? "-"
-                    }
-
-                </div>
-
-            </div>
-
-        `;
-
-    });
-
-
-    html += `</div>`;
-
-
-    content.innerHTML = html;
-
-}
-
-
-/* =====================================================
-   CLOSE DETAILS
-===================================================== */
-
-function closeDetails() {
-
-    document.getElementById(
-        "detailsPage"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "fixturesPage"
-    ).style.display = "block";
-
-
-    window.scrollTo(0, 0);
-
-}
-
-
-/* =====================================================
-   LEAGUE
-===================================================== */
+   SELECT LEAGUE
+   ===================================================== */
 
 function selectLeague(id, button) {
 
@@ -2185,7 +1113,9 @@ function selectLeague(id, button) {
     document
         .querySelectorAll(".league-btn")
         .forEach(btn =>
+
             btn.classList.remove("active")
+
         );
 
 
@@ -2198,8 +1128,8 @@ function selectLeague(id, button) {
 
 
 /* =====================================================
-   MAIN TABS
-===================================================== */
+   CHANGE TAB
+   ===================================================== */
 
 function changeTab(tab, button) {
 
@@ -2209,7 +1139,9 @@ function changeTab(tab, button) {
     document
         .querySelectorAll(".tab")
         .forEach(btn =>
+
             btn.classList.remove("active")
+
         );
 
 
@@ -2217,9 +1149,7 @@ function changeTab(tab, button) {
 
 
     const title =
-        document.getElementById(
-            "sectionTitle"
-        );
+        document.getElementById("sectionTitle");
 
 
     if (tab === "live") {
@@ -2250,91 +1180,13 @@ function changeTab(tab, button) {
 
 
 /* =====================================================
-   FORMAT TIME
-===================================================== */
-
-function formatTime(dateString) {
-
-    return new Intl.DateTimeFormat(
-
-        "en-NG",
-
-        {
-
-            timeZone: "Africa/Lagos",
-
-            hour: "2-digit",
-
-            minute: "2-digit",
-
-            hour12: true
-
-        }
-
-    ).format(
-        new Date(dateString)
-    );
-
-}
-
-
-/* =====================================================
-   FORMAT DATE
-===================================================== */
-
-function formatDate(dateString) {
-
-    return new Intl.DateTimeFormat(
-
-        "en-NG",
-
-        {
-
-            timeZone: "Africa/Lagos",
-
-            day: "2-digit",
-
-            month: "short"
-
-        }
-
-    ).format(
-        new Date(dateString)
-    );
-
-}
-
-
-/* =====================================================
-   FORMAT STAT
-===================================================== */
-
-function formatStat(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "-";
-
-    }
-
-    return String(value);
-
-}
-
-
-/* =====================================================
    ESCAPE HTML
-===================================================== */
+   ===================================================== */
 
 function escapeHTML(value) {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
+    if (value === null ||
+        value === undefined) {
 
         return "";
 
@@ -2357,61 +1209,10 @@ function escapeHTML(value) {
 
 
 /* =====================================================
-   AUTOMATIC LIVE REFRESH
-===================================================== */
-
-function startLiveRefresh() {
-
-    if (liveRefreshTimer) {
-
-        clearInterval(
-            liveRefreshTimer
-        );
-
-    }
-
-
-    liveRefreshTimer =
-        setInterval(async () => {
-
-            if (
-                selectedTab === "live" &&
-                document.getElementById(
-                    "fixturesPage"
-                ).style.display !== "none"
-            ) {
-
-                try {
-
-                    await loadLiveFixtures();
-
-                    renderMatches();
-
-                }
-
-                catch (error) {
-
-                    console.log(
-                        "Live refresh error",
-                        error
-                    );
-
-                }
-
-            }
-
-        }, 30000);
-
-}
-
-
-/* =====================================================
-   START
-===================================================== */
+   START APP
+   ===================================================== */
 
 loadMatches();
-
-startLiveRefresh();
 
 </script>
 
