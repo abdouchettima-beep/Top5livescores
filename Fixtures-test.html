@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Football Fixtures API Test</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .box {
+      max-width: 650px;
+      margin: 20px auto;
+      background: #1d1d1d;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      background: #168cff;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .match {
+      background: #292929;
+      padding: 15px;
+      margin: 12px 0;
+      border-radius: 10px;
+    }
+
+    .league {
+      color: #4db8ff;
+      font-weight: bold;
+    }
+
+    .teams {
+      font-size: 18px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
+    .status {
+      color: #00e676;
+    }
+
+    .error {
+      background: #451818;
+      color: #ff8a8a;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .success {
+      background: #123d25;
+      color: #8cffad;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .small {
+      color: #aaa;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h1>⚽ Football Fixtures Test</h1>
+
+  <p class="small" id="date"></p>
+
+  <button onclick="loadFixtures()">LOAD TODAY'S MATCHES</button>
+
+  <div id="result">
+    Press the button to load today's football fixtures.
+  </div>
+
+</div>
+
+<script>
+
+  // PUT YOUR API KEY BETWEEN THE QUOTATION MARKS
+  const API_KEY = "b6ada9c0192ddae9cb4d6f7812da6058";
+
+
+  // Show today's date
+  const today = new Date().toISOString().split("T")[0];
+
+  document.getElementById("date").innerHTML =
+    "Testing fixtures for: " + today;
+
+
+  async function loadFixtures() {
+
+    const result = document.getElementById("result");
+
+    result.innerHTML = "⏳ Loading today's football matches...";
+
+
+    try {
+
+      const url =
+        "https://v3.football.api-sports.io/fixtures?date=" +
+        today;
+
+
+      const response = await fetch(url, {
+
+        method: "GET",
+
+        headers: {
+          "x-apisports-key": API_KEY
+        }
+
+      });
+
+
+      const data = await response.json();
+
+
+      console.log(data);
+
+
+      // Check HTTP response
+      if (!response.ok) {
+
+        result.innerHTML =
+          '<div class="error">' +
+          "❌ HTTP ERROR\n\n" +
+          "Status: " +
+          response.status +
+          "\n\n" +
+          JSON.stringify(data, null, 2) +
+          "</div>";
+
+        return;
+      }
+
+
+      // Check API errors
+      if (data.errors && Object.keys(data.errors).length > 0) {
+
+        result.innerHTML =
+          '<div class="error">' +
+          "❌ API ERROR\n\n" +
+          JSON.stringify(data.errors, null, 2) +
+          "</div>";
+
+        return;
+      }
+
+
+      const matches = data.response || [];
+
+
+      // No matches
+      if (matches.length === 0) {
+
+        result.innerHTML =
+          '<div class="success">' +
+          "✅ API CONNECTION WORKS!\n\n" +
+          "However, there are no fixtures returned for today." +
+          "</div>";
+
+        return;
+      }
+
+
+      // Success
+      let html = "";
+
+      html +=
+        '<div class="success">' +
+        "✅ FIXTURES API WORKING!\n\n" +
+        "Matches received: " +
+        matches.length +
+        "</div>";
+
+
+      // Display first 50 matches
+      matches.slice(0, 50).forEach(match => {
+
+        const league =
+          match.league?.name || "Unknown League";
+
+        const country =
+          match.league?.country || "";
+
+        const home =
+          match.teams?.home?.name || "Home";
+
+        const away =
+          match.teams?.away?.name || "Away";
+
+        const homeScore =
+          match.goals?.home ?? "-";
+
+        const awayScore =
+          match.goals?.away ?? "-";
+
+        const status =
+          match.fixture?.status?.short || "N/A";
+
+
+        html += `
+          <div class="match">
+
+            <div class="league">
+              🏆 ${league}
+            </div>
+
+            <div class="small">
+              ${country}
+            </div>
+
+            <div class="teams">
+              ${home}
+              ${homeScore}
+              -
+              ${awayScore}
+              ${away}
+            </div>
+
+            <div class="status">
+              Status: ${status}
+            </div>
+
+          </div>
+        `;
+
+      });
+
+
+      result.innerHTML = html;
+
+
+    } catch (error) {
+
+      result.innerHTML =
+        '<div class="error">' +
+        "❌ REQUEST FAILED\n\n" +
+        error.message +
+        "</div>";
+
+    }
+
+  }
+
+</script>
+
+</body>
+</html>
